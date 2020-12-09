@@ -32,7 +32,7 @@ public class SwaggerConfiguration {
 		Contact contact = new Contact("黑马程序员","","");
 		return new ApiInfoBuilder()
 				.title("万信金融P2P平台-用户服务API文档")
-				.description("包含统一账号服务api")
+				.description("包含统一账户服务api")
 				.contact(contact)
 				.version("1.0.0").build();
 	}

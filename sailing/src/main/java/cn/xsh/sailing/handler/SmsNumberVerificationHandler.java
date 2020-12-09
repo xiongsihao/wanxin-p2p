@@ -73,10 +73,12 @@ public class SmsNumberVerificationHandler extends AbstractVerificationHandler {
 	String confusion(Map<String, Object> payload, String key, String code) {
 		String mobile = String.valueOf(payload.get("mobile"));
 
-		// 使用腾讯云发送短信
-//		smsService.send(mobile, code, getEffectiveTime());
+		//TODO 发送验证码选择
 
-		// 测试使用，在控制台输出验证码
+		// 使用腾讯云真实发送短信
+		//smsService.send(mobile, code, getEffectiveTime());
+
+		// 测试使用，不实际发送，仅在控制台输出验证码
 		smsService.sendOnConsole(mobile, code, getEffectiveTime());
 		return null;
 	}

@@ -35,7 +35,7 @@ public class SwaggerConfiguration {
 	 * @methodName: buildApiInfo
 	 */
 	private ApiInfo buildApiInfo() {
-		Contact contact = new Contact("徐帆","","");
+		Contact contact = new Contact("xsh","","");
 		return new ApiInfoBuilder()
 				.title("验证码服务API文档")
 				.description("包含验证码、短信api")

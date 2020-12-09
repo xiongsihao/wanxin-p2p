@@ -31,10 +31,10 @@ spring:
 
 sms:
   qcloud:
-    appId: 0
-    appKey: appKey
-    templateId: 0
-    sign: 签名
+    appId: 1400226369
+    appKey: 36ff7b014d0d107f9a4cdf335cc25052
+    templateId: 362314
+    sign: 传智播客
 
 swagger:
   enable: true
