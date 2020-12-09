@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:5.0.5
+    container_name: redis
+    restart: always
+    network_mode: "host"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data:/data
+    command: redis-server
+    tty: true
+
+  sailing:
+    container_name: sailing
+    build: .
+    image: sailing:1.0-SNAPSHOT
+    network_mode: "host"
+    ports:
+      - "56085:56085"
+    restart: always
+    depends_on:
+      - redis
+    volumes:
+      - "./logs:/logs"
+    environment:
+      JAVA_OPTS: "-Xms256m -Xmx256m -Xmn128m"

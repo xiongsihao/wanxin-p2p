@@ -1,0 +1,18 @@
+
+target/
+logs/
+
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+
+### Eclipse ###
+.classpath
+.project
+.setting
+*.log.*
