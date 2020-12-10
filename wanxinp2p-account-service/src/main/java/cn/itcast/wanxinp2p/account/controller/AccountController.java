@@ -2,10 +2,16 @@ package cn.itcast.wanxinp2p.account.controller;
 
 
 import cn.itcast.wanxinp2p.account.AccountAPI;
+//import cn.itcast.wanxinp2p.account.service.AccountService;
+//import cn.itcast.wanxinp2p.api.AccountAPI;
+//import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
+//import cn.itcast.wanxinp2p.api.account.model.AccountLoginDTO;
+//import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.account.service.AccountService;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +38,18 @@ public class AccountController implements AccountAPI {
         return accountService.getSMSCode(mobile);
     }
 
+    @ApiOperation("校验手机号和验证码")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "mobile", value = "手机号", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "key", value = "校验标识", required = true, dataType = "String"),
+            @ApiImplicitParam(name = "code", value = "验证码", required = true, dataType = "String")})
+    @Override
+    @GetMapping("/mobiles/{mobile}/key/{key}/code/{code}")
+    public RestResponse<Integer> checkMobile(@PathVariable String mobile,
+                                             @PathVariable String key,
+                                             @PathVariable String code) {
+
+        return RestResponse.success(accountService.checkMobile(mobile,key,code));
+    }
 
 }
