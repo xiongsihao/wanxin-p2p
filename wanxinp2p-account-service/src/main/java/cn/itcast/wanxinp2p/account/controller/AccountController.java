@@ -7,6 +7,8 @@ import cn.itcast.wanxinp2p.account.AccountAPI;
 //import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
 //import cn.itcast.wanxinp2p.api.account.model.AccountLoginDTO;
 //import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
+import cn.itcast.wanxinp2p.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.account.service.AccountService;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import io.swagger.annotations.Api;
@@ -52,4 +54,23 @@ public class AccountController implements AccountAPI {
         return RestResponse.success(accountService.checkMobile(mobile,key,code));
     }
 
+    @Override
+    @ApiOperation("用户注册")
+    @ApiImplicitParam(name = "accountRegisterDTO", value = "账户注册信息", required = true,
+            dataType = "AccountRegisterDTO", paramType = "body")
+    @PostMapping(value = "/l/accounts")
+    public RestResponse<AccountDTO> register(@RequestBody AccountRegisterDTO accountRegisterDTO) {
+        return RestResponse.success(accountService.register(accountRegisterDTO));
+    }
+
+
+//
+//    @ApiOperation("用户登录")
+//    @ApiImplicitParam(name = "accountLoginDTO", value = "登录信息", required = true,
+//            dataType = "AccountLoginDTO", paramType = "body")
+//    @PostMapping(value = "/l/accounts/session")
+//    @Override
+//    public RestResponse<AccountDTO> login(@RequestBody AccountLoginDTO accountLoginDTO) {
+//        return RestResponse.success(accountService.login(accountLoginDTO));
+//    }
 }
