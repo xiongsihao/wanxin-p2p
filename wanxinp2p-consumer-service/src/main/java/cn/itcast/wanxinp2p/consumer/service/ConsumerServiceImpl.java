@@ -1,8 +1,13 @@
 package cn.itcast.wanxinp2p.consumer.service;
 
+import cn.itcast.wanxinp2p.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.common.domain.BusinessException;
 import cn.itcast.wanxinp2p.common.domain.CodePrefixCode;
+import cn.itcast.wanxinp2p.common.domain.CommonErrorCode;
+import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
+import cn.itcast.wanxinp2p.consumer.agent.AccountApiAgent;
 import cn.itcast.wanxinp2p.consumer.common.ConsumerErrorCode;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
@@ -11,6 +16,7 @@ import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author : xsh
@@ -19,6 +25,9 @@ import org.springframework.beans.BeanUtils;
  */
 public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> implements ConsumerService {
 
+
+    @Autowired
+    private AccountApiAgent accountApiAgent;
 
     /**
      * 检测用户是否存在
@@ -54,6 +63,14 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         consumer.setIsBindCard(0);
         consumer.setUsername(CodeNoUtil.getNo(CodePrefixCode.CODE_NO_PREFIX));
         save(consumer);
+
+        AccountRegisterDTO accountRegisterDTO=new AccountRegisterDTO();
+        BeanUtils.copyProperties(consumerRegisterDTO,accountRegisterDTO);
+        //远程调用account服务
+        RestResponse<AccountDTO> restResponse = accountApiAgent.register(accountRegisterDTO);
+        if(restResponse.getCode()!= CommonErrorCode.SUCCESS.getCode()){
+            throw new BusinessException(ConsumerErrorCode.E_140106);
+        }
     }
 
     /**
