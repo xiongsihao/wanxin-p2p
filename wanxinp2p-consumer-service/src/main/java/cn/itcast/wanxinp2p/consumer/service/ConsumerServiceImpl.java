@@ -17,12 +17,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author : xsh
  * @create : 2020-12-13 - 15:54
  * @describe:
  */
+@Service
 public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> implements ConsumerService {
 
 
@@ -62,6 +64,7 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         consumer.setUserNo(CodeNoUtil.getNo(CodePrefixCode.CODE_CONSUMER_PREFIX));
         consumer.setIsBindCard(0);
         consumer.setUsername(CodeNoUtil.getNo(CodePrefixCode.CODE_NO_PREFIX));
+        consumerRegisterDTO.setUsername(consumer.getUsername());
         save(consumer);
 
         AccountRegisterDTO accountRegisterDTO=new AccountRegisterDTO();

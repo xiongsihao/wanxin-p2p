@@ -1,6 +1,10 @@
-﻿
 package cn.itcast.wanxinp2p.consumer.common;
 
+/**
+ * @author : xsh
+ * @create : 2020-12-15 - 0:25
+ * @describe:
+ */
 
 import cn.itcast.wanxinp2p.common.domain.ErrorCode;
 
@@ -12,50 +16,51 @@ import cn.itcast.wanxinp2p.common.domain.ErrorCode;
  * c端用户服务异常编码以14开始
  */
 public enum ConsumerErrorCode implements ErrorCode {
-	////////////////////////////////////c端用户服务异常编码 //////////////////////////
-	/**
-	 * 不存在的用户信息
-	 */
-	E_140101(140101,"不存在的用户信息"),
-	E_140102(140102,"请求失败"),
-	E_140105(140105,"用户已开户"),
-	E_140106(140106,"注册失败"),
-	E_140107(140107, "用户已存在"),
-	E_140108(140108, "身份信息不一致"),
+    ////////////////////////////////////c端用户服务异常编码 //////////////////////////
+    /**
+     * 不存在的用户信息
+     */
+    E_140101(140101, "不存在的用户信息"),
+    E_140102(140102, "请求失败"),
+    E_140105(140105, "用户已开户"),
+    E_140106(140106, "注册失败"),
+    E_140107(140107, "用户已存在"),
+    E_140108(140108, "身份信息不一致"),
 
-	E_140131(140131,"用户充值失败"),
-	E_140132(140132,"用户存管账户未开通成功"),
-
-
-	E_140141(140141,"用户提现失败"),
+    E_140131(140131, "用户充值失败"),
+    E_140132(140132, "用户存管账户未开通成功"),
 
 
-	E_140151(140151,"银行卡已被绑定"),
-	;
-
-	private int code;
-	private String desc;
-		
-	public int getCode() {
-		return code;
-	}
-
-	public String getDesc() {
-		return desc;
-	}
-
-	private ConsumerErrorCode(int code, String desc) {
-		this.code = code;
-		this.desc = desc;
-	}
+    E_140141(140141, "用户提现失败"),
 
 
-	public static ConsumerErrorCode setErrorCode(int code) {
-       for (ConsumerErrorCode errorCode : ConsumerErrorCode.values()) {
-           if (errorCode.getCode()==code) {
-               return errorCode;
-           }
-       }
-	       return null;
-	}
+    E_140151(140151, "银行卡已被绑定"),
+    ;
+
+    private int code;
+    private String desc;
+
+    public int getCode() {
+        return code;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    private ConsumerErrorCode(int code, String desc) {
+        this.code = code;
+        this.desc = desc;
+    }
+
+
+    public static ConsumerErrorCode setErrorCode(int code) {
+        for (ConsumerErrorCode errorCode : ConsumerErrorCode.values()) {
+            if (errorCode.getCode() == code) {
+                return errorCode;
+            }
+        }
+        return null;
+    }
 }
+
