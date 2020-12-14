@@ -2,11 +2,6 @@ package cn.itcast.wanxinp2p.account.controller;
 
 
 import cn.itcast.wanxinp2p.account.AccountAPI;
-//import cn.itcast.wanxinp2p.account.service.AccountService;
-//import cn.itcast.wanxinp2p.api.AccountAPI;
-//import cn.itcast.wanxinp2p.api.account.model.AccountDTO;
-//import cn.itcast.wanxinp2p.api.account.model.AccountLoginDTO;
-//import cn.itcast.wanxinp2p.api.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.account.model.AccountDTO;
 import cn.itcast.wanxinp2p.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.account.service.AccountService;
