@@ -14,6 +14,7 @@ import cn.itcast.wanxinp2p.common.domain.ErrorCode;
 public enum AccountErrorCode implements ErrorCode {
 
 	E_130101(130101, "用户名已存在"),
+	E_130102(130102, "用户名不存在"),
 	E_130104(130104, "用户未注册"),
 	E_130105(130105, "用户名或密码错误"),
 	E_140141(140141,"注册失败"),
