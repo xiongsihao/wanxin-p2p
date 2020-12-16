@@ -1,6 +1,13 @@
 package cn.itcast.wanxinp2p.uaa.domain;
 
+import cn.itcast.wanxinp2p.account.model.AccountDTO;
+import cn.itcast.wanxinp2p.account.model.AccountLoginDTO;
+import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import cn.itcast.wanxinp2p.common.util.StringUtil;
+import cn.itcast.wanxinp2p.uaa.agent.AccountApiAgent;
+import cn.itcast.wanxinp2p.uaa.common.utils.ApplicationContextHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -21,7 +28,35 @@ public class IntegrationUserDetailsAuthenticationHandler {
 	 */
 	public UnifiedUserDetails authentication(String domain, String authenticationType,
 			UsernamePasswordAuthenticationToken token) {
-		return null;
+		
+		//1. 从客户端取数据
+		String username = token.getName();
+		if(StringUtil.isBlank(username)){
+			throw new BadCredentialsException("账户为空");
+		}
+		if(token.getCredentials()==null){
+			throw new BadCredentialsException("密码为空");
+		}
+		String presentedPassword = token.getCredentials().toString();
+		//2.远程调用统一账户服务进行账户密码校验
+		AccountLoginDTO accountLoginDTO=new AccountLoginDTO();
+		accountLoginDTO.setDomain(domain);
+		accountLoginDTO.setUsername(username);
+		accountLoginDTO.setMobile(username);
+		accountLoginDTO.setPassword(presentedPassword);
+
+		//获取bean对象工具类ApplicationContextHelper
+		AccountApiAgent accountApiAgent=(AccountApiAgent)ApplicationContextHelper.getBean(AccountApiAgent.class);
+		RestResponse<AccountDTO> restResponse =accountApiAgent.login(accountLoginDTO);
+
+		//3.返回结果 异常处理
+		if(restResponse.getCode()!=0){
+			throw new BadCredentialsException("登录失败");
+		}
+		//4.登录成功，把用户数据封装到UnifiedUserDetails对象中
+		UnifiedUserDetails unifiedUserDetails=new UnifiedUserDetails(restResponse.getResult().getUsername(),presentedPassword,AuthorityUtils.createAuthorityList());
+		unifiedUserDetails.setMobile(restResponse.getResult().getMobile());
+		return unifiedUserDetails;
 		
 	}
 
