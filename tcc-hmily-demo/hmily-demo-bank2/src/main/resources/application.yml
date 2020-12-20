@@ -1,0 +1,46 @@
+server:
+  servlet:
+    context-path: /bank2
+  port: 56082
+
+eureka:
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance_id:${server.port}}
+    lease-renewal-interval-in-seconds: 5    # 续约更新时间间隔（默认30秒）
+    lease-expiration-duration-in-seconds: 10 # 续约到期时间（默认90秒）
+  client:
+    registry-fetch-interval-seconds: 5 # 抓取服务列表
+    serviceUrl:
+      defaultZone: http://localhost:56080/eureka/
+
+spring:
+  application:
+    name: hmily-demo-bank2
+  datasource:
+    url: jdbc:mysql://localhost:3306/bank2?useUnicode=true
+    username: root
+    password: 123
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+org:
+  dromara:
+    hmily :
+      serializer : kryo #序列化工具
+      retryMax : 2 #最大重试次数
+      repositorySupport : db #持久化方式
+      started: false #事务参与方
+      hmilyDbConfig :
+        driverClassName  : com.mysql.jdbc.Driver
+        url :  jdbc:mysql://localhost:3306/bank2?useUnicode=true
+        username : root
+        password : 123
+
+
+ribbon:
+  ConnectTimeout: 600 # 设置连接超时时间 default 2000
+  ReadTimeout: 600    # 设置读取超时时间  default 5000
+  OkToRetryOnAllOperations: true # 对所有操作请求都进行重试  default false
+  MaxAutoRetriesNextServer: 2    # 切换实例的重试次数  default 1
+  MaxAutoRetries: 1     # 对当前实例的重试次数 default 0
