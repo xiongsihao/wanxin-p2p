@@ -18,7 +18,7 @@ spring:
   application:
     name: hmily-demo-bank2
   datasource:
-    url: jdbc:mysql://localhost:3306/bank2?useUnicode=true
+    url: jdbc:mysql://localhost:3306/bank2?useUnicode=true&serverTimezone=UTC
     username: root
     password: 123
     type: com.alibaba.druid.pool.DruidDataSource
@@ -33,7 +33,7 @@ org:
       started: false #事务参与方
       hmilyDbConfig :
         driverClassName  : com.mysql.jdbc.Driver
-        url :  jdbc:mysql://localhost:3306/bank2?useUnicode=true
+        url :  jdbc:mysql://localhost:3306/bank2?useUnicode=true&serverTimezone=UTC
         username : root
         password : 123
 

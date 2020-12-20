@@ -15,7 +15,8 @@ public class AccountInfoServiceImpl implements AccountInfoService {
 	public Boolean updateAccountBalance(String accountNo, Double amount) {
 		System.out.println("******** Bank2 Service Begin ...");
 		try{
-			accountInfoDao=null; //测试使用
+			//TODO 成功案例需要把以下这行去掉
+			accountInfoDao=null; //测试使用，模拟事务回滚 失败情况
 			accountInfoDao.updateAccountBalance(accountNo ,amount);
 		}catch(Exception e){
 			throw new RuntimeException( e.getMessage() );
