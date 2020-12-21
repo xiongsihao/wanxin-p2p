@@ -1,0 +1,20 @@
+# command -Denv=DEV -Dapollo.cacheDir=/opt/data/cache-dir -Dapollo.cluster=DEFAULT
+    app:
+      id: wanxindepository
+    apollo:
+      bootstrap:
+        enabled: true
+        #    eagerLoad:
+        #      enabled: true
+        namespaces: application,micro_service.spring-boot-druid,micro_service.spring-boot-http,micro_service.spring-freemarker,micro_service.mybatis-plus,micro_service.spring-rocketmq
+
+    spring:
+      application:
+        name: wanxindepository
+
+    logging:
+      config: classpath:log4j2-dev.xml
+
+
+
+

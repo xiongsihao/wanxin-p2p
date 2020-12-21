@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.itcast.wanxindepository.mapper.BankCardDetailsMapper">
+
+    <select id="selectByBankCardId" resultType="BankCardDetails">
+        SELECT * FROM bank_card_details
+        WHERE BANK_CARD_ID = #{bankCardId}
+        ORDER BY ID DESC LIMIT 1;
+    </select>
+
+</mapper>

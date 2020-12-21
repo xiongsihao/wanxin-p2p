@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.itcast.wanxindepository.mapper.BankCardMapper">
+
+    <!--<select id="queryBankCards" resultMap="cn.itcast.wanxindepository.entity.BankCard">
+        SELECT card.*, u.`FULLNAME`, u.ID_NUMBER, u.MOBILE
+        FROM bank_card card
+        LEFT JOIN bank_user u
+        ON card.USER_ID = u.ID
+        <where>
+            ${ew.sqlSegment}
+        </where>
+    </select>-->
+</mapper>
