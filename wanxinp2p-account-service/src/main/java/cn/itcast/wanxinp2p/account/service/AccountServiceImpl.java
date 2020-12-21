@@ -66,6 +66,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             account.setPassword(PasswordUtil.generate(accountRegisterDTO.getMobile()));
         }
         account.setDomain("c");
+        if(accountRegisterDTO.getMobile().equals("110")){
+            throw new RuntimeException("手动抛出异常");
+        }
         save(account);
         return convertAccountEntityToDTO(account);
     }
