@@ -14,7 +14,10 @@ import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.dromara.hmily.annotation.Hmily;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
  * @describe:
  */
 @Service
+@Slf4j
 public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> implements ConsumerService {
 
 
@@ -39,7 +43,7 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
      */
     @Override
     public Integer checkMobile(String mobile) {
-        return getByMobile(mobile)!=null?1:0;
+        return getByMobile(mobile) != null ? 1 : 0;
     }
 
     private ConsumerDTO getByMobile(String mobile) {
@@ -53,12 +57,13 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
      * @param consumerRegisterDTO
      */
     @Override
+    @Hmily(confirmMethod = "confirmRegister", cancelMethod = "cancelRegister")
     public void register(ConsumerRegisterDTO consumerRegisterDTO) {
-        if(checkMobile(consumerRegisterDTO.getMobile())==1){
+        if (checkMobile(consumerRegisterDTO.getMobile()) == 1) {
             throw new BusinessException(ConsumerErrorCode.E_140107);
         }
 
-        Consumer consumer=new Consumer();
+        Consumer consumer = new Consumer();
         BeanUtils.copyProperties(consumerRegisterDTO, consumer);
         //人工赋初值
         consumer.setUserNo(CodeNoUtil.getNo(CodePrefixCode.CODE_CONSUMER_PREFIX));
@@ -67,13 +72,23 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
         consumerRegisterDTO.setUsername(consumer.getUsername());
         save(consumer);
 
-        AccountRegisterDTO accountRegisterDTO=new AccountRegisterDTO();
-        BeanUtils.copyProperties(consumerRegisterDTO,accountRegisterDTO);
+        AccountRegisterDTO accountRegisterDTO = new AccountRegisterDTO();
+        BeanUtils.copyProperties(consumerRegisterDTO, accountRegisterDTO);
         //远程调用account服务
         RestResponse<AccountDTO> restResponse = accountApiAgent.register(accountRegisterDTO);
-        if(restResponse.getCode()!= CommonErrorCode.SUCCESS.getCode()){
+        if (restResponse.getCode() != CommonErrorCode.SUCCESS.getCode()) {
             throw new BusinessException(ConsumerErrorCode.E_140106);
         }
+    }
+
+    public void confirmRegister(ConsumerRegisterDTO consumerRegisterDTO) {
+        log.info("execute confirmRegister");
+    }
+
+    public void cancelRegister(ConsumerRegisterDTO consumerRegisterDTO) {
+        log.info("execute cancelRegister");
+        remove(Wrappers.<Consumer>lambdaQuery().eq(Consumer::getMobile,
+                consumerRegisterDTO.getMobile()));
     }
 
     /**
