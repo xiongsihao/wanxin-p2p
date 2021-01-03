@@ -147,4 +147,9 @@ public class ChineseIDCardNumberGenerator extends GenericGenerator {
 
         return map;
     }
+
+    public static void main(String[] args) {
+        String id = ChineseIDCardNumberGenerator.getInstance().generate();
+        System.out.println(id);
+    }
 }

@@ -4,7 +4,9 @@ import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
 import cn.itcast.wanxinp2p.consumer.ConsumerAPI;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
+import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
+import cn.itcast.wanxinp2p.depository.GatewayRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +49,22 @@ public class ConsumerController implements ConsumerAPI {
     public RestResponse register(@RequestBody ConsumerRegisterDTO consumerRegisterDTO) {
         consumerService.register(consumerRegisterDTO);
         return RestResponse.success();
+    }
+
+    /**
+     * 生成开户请求数据
+     *
+     * @param consumerRequest 开户信息
+     * @return
+     */
+    @Override
+    @ApiOperation("生成开户请求数据")
+    @ApiImplicitParam(name = "consumerRequest", value = "开户信息", required = true, dataType = "ConsumerRequest", paramType = "body")
+    @PostMapping(value = "/my/consumers")
+    public RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest) {
+
+
+        return null;
     }
 
     @ApiOperation("过网关受保护资源，进行认证拦截测试")
