@@ -3,6 +3,7 @@ package cn.itcast.wanxinp2p.consumer.controller;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
 import cn.itcast.wanxinp2p.consumer.ConsumerAPI;
+import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
@@ -62,9 +63,8 @@ public class ConsumerController implements ConsumerAPI {
     @ApiImplicitParam(name = "consumerRequest", value = "开户信息", required = true, dataType = "ConsumerRequest", paramType = "body")
     @PostMapping(value = "/my/consumers")
     public RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest) {
-
-
-        return null;
+        consumerRequest.setMobile(SecurityUtil.getUser().getMobile());
+        return consumerService.createConsumer(consumerRequest);
     }
 
     @ApiOperation("过网关受保护资源，进行认证拦截测试")

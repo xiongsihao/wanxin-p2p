@@ -1,7 +1,10 @@
 package cn.itcast.wanxinp2p.consumer.service;
 
+import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
+import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.depository.GatewayRequest;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -23,4 +26,11 @@ public interface ConsumerService extends IService<Consumer> {
      * @param consumerRegisterDTO
      */
     void register(ConsumerRegisterDTO consumerRegisterDTO);
+
+    /**
+     * 生成开户数据
+     * @param consumerRequest
+     * @return
+     */
+    RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest);
 }

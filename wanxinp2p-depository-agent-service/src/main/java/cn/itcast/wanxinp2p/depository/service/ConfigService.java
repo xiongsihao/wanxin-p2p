@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  * 本类用于获取配置文件中的配置, 封装成service方便调用
  */
 @Service
-@EnableApolloConfig
+@EnableApolloConfig   //该注解开启可以从阿波罗上取配置的值
 public class ConfigService {
     @ApolloConfig
     private Config config;
