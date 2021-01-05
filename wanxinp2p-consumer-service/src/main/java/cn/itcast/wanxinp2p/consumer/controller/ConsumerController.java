@@ -62,7 +62,7 @@ public class ConsumerController implements ConsumerAPI {
     @ApiOperation("生成开户请求数据")
     @ApiImplicitParam(name = "consumerRequest", value = "开户信息", required = true, dataType = "ConsumerRequest", paramType = "body")
     @PostMapping(value = "/my/consumers")
-    public RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest) {
+    public RestResponse<GatewayRequest> createConsumer(@RequestBody ConsumerRequest consumerRequest) {
         consumerRequest.setMobile(SecurityUtil.getUser().getMobile());
         return consumerService.createConsumer(consumerRequest);
     }

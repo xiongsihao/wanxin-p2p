@@ -100,13 +100,17 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
     public RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest) {
         //1. 判断当前用户是否已经开户
         ConsumerDTO consumerDTO = getByMobile(consumerRequest.getMobile());
+        if(consumerDTO ==null){
+            throw new BusinessException(ConsumerErrorCode.E_140109);
+        }
+
         if (consumerDTO.getIsBindCard() == 1) {
             throw new BusinessException(ConsumerErrorCode.E_140105);
         }
 
         //2.判断提交过来的银行卡是否已被绑定
         BankCardDTO bankCardDTO = bankCardService.getByCardNumber(consumerRequest.getCardNumber());
-        if (bankCardDTO != null || bankCardDTO.getStatus() == StatusCode.STATUS_IN.getCode()) {
+        if (bankCardDTO != null && bankCardDTO.getStatus() == StatusCode.STATUS_IN.getCode()) {
             throw new BusinessException(ConsumerErrorCode.E_140151);
         }
 
