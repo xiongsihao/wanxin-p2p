@@ -11,6 +11,18 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @describe:
  */
 public interface DepositoryRecordService extends IService<DepositoryRecord> {
-
+    /**
+     * 开通存管账户
+     * @param consumerRequest 开户信息
+     * @return
+     */
     GatewayRequest createConsumer(ConsumerRequest consumerRequest);
+
+    /**
+     * 根据请求流水号更新请求状态
+     * @param requestNo
+     * @param requestsStatus
+     * @return
+     */
+    Boolean modifyRequestStatus(String requestNo, Integer requestsStatus);
 }

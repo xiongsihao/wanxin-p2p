@@ -9,6 +9,7 @@ import cn.itcast.wanxinp2p.depository.common.constant.DepositoryRequestTypeCode;
 import cn.itcast.wanxinp2p.depository.entity.DepositoryRecord;
 import cn.itcast.wanxinp2p.depository.mapper.DepositoryRecordMapper;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,21 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
         gatewayRequest.setSignature(EncryptUtil.encodeURL(sign));
         gatewayRequest.setDepositoryUrl(configService.getDepositoryUrl() + "/gateway");
         return gatewayRequest;
+    }
+
+    /**
+     * 根据请求流水号更新请求状态
+     *
+     * @param requestNo
+     * @param requestsStatus
+     * @return
+     */
+    @Override
+    public Boolean modifyRequestStatus(String requestNo, Integer requestsStatus) {
+        return update(Wrappers.<DepositoryRecord>lambdaUpdate()
+                .eq(DepositoryRecord::getRequestNo, requestNo)
+                .set(DepositoryRecord::getRequestStatus, requestsStatus)
+                .set(DepositoryRecord::getConfirmDate, LocalDateTime.now()));
     }
 
     private void saveDepositoryRecord(ConsumerRequest consumerRequest){
