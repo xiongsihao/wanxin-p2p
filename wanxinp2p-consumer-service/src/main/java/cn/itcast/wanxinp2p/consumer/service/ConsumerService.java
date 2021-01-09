@@ -5,6 +5,7 @@ import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.depository.GatewayRequest;
+import cn.itcast.wanxinp2p.depository.model.DepositoryConsumerResponse;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -33,4 +34,11 @@ public interface ConsumerService extends IService<Consumer> {
      * @return
      */
     RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest);
+
+    /**
+     * 更新开户结果
+     * @param response
+     * @return
+     */
+    Boolean modifyResult(DepositoryConsumerResponse response);
 }
