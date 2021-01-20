@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "我的出借记录！",
+  "usingComponents": {
+    "top-bar": "/components/TopBar"
+  }
+}

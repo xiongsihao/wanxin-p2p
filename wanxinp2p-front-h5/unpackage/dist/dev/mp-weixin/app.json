@@ -1,0 +1,73 @@
+{
+  "pages": [
+    "pages/main/main",
+    "pages/pwd/pwd",
+    "pages/user/user",
+    "pages/user/login",
+    "pages/user/reg",
+    "pages/lend/main",
+    "pages/lend/details",
+    "pages/borrow/main",
+    "pages/lend/openStorage",
+    "pages/lend/confirmStorage",
+    "pages/common/success",
+    "pages/lend/lendLog",
+    "pages/lend/confirmLend",
+    "pages/lend/lendSuccess",
+    "pages/user/account",
+    "pages/user/claims",
+    "pages/user/progress",
+    "pages/user/pay",
+    "pages/user/withdrawal",
+    "pages/user/confirmWithdrawal",
+    "pages/user/lendLog",
+    "pages/borrow/borrow",
+    "pages/borrow/audit",
+    "pages/borrow/repayment",
+    "pages/borrow/confirmRepay",
+    "pages/borrow/log",
+    "pages/borrow/loanDet",
+    "pages/borrow/borrowPlan",
+    "pages/borrow/borrowDet",
+    "pages/user/myLendLog"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "white",
+    "navigationBarBackgroundColor": "#0faeff",
+    "backgroundColor": "#fbf9fe"
+  },
+  "tabBar": {
+    "color": "#7a7e83",
+    "selectedColor": "#0faeff",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/main/main",
+        "text": "首页",
+        "iconPath": "static/img/tabBar_bor.png",
+        "selectedIconPath": "static/img/tabBar_bor_act.png"
+      },
+      {
+        "pagePath": "pages/lend/main",
+        "text": "出借",
+        "iconPath": "static/img/tabBar_lend.png",
+        "selectedIconPath": "static/img/tabBar_lend_act.png"
+      },
+      {
+        "pagePath": "pages/borrow/borrow",
+        "text": "借钱",
+        "iconPath": "static/img/tabBar_bor.png",
+        "selectedIconPath": "static/img/tabBar_bor_act.png"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "我的",
+        "iconPath": "static/img/tabBar_user.png",
+        "selectedIconPath": "static/img/tabBar_user_act.png"
+      }
+    ]
+  },
+  "usingComponents": {}
+}

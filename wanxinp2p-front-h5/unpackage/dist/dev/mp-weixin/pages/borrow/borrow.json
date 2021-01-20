@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "借款首页！",
+  "usingComponents": {
+    "top-bar": "/components/TopBar",
+    "list-item": "/components/ListItem",
+    "button-items": "/components/ButtonItems",
+    "select-items": "/components/selectItems"
+  }
+}

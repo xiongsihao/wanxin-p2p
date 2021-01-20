@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "出借详情",
+  "usingComponents": {
+    "button-items": "/components/ButtonItems",
+    "list-item": "/components/ListItem",
+    "top-bar": "/components/TopBar"
+  }
+}

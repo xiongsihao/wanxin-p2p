@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "还款计划！",
+  "usingComponents": {
+    "top-bar": "/components/TopBar"
+  }
+}

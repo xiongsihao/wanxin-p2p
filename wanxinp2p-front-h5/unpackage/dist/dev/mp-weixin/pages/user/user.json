@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "我的",
+  "usingComponents": {
+    "footer-mark": "/components/FooterMark",
+    "list-item": "/components/ListItem"
+  }
+}

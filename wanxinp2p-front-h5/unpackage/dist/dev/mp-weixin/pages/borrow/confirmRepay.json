@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "确认还款！",
+  "usingComponents": {
+    "list-item": "/components/ListItem",
+    "top-bar": "/components/TopBar"
+  }
+}

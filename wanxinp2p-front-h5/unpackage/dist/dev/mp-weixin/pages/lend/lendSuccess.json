@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "出借成功！",
+  "usingComponents": {
+    "top-bar": "/components/TopBar",
+    "button-items": "/components/ButtonItems"
+  }
+}

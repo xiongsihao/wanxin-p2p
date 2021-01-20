@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "出借",
+  "usingComponents": {
+    "lend-cards": "/components/LendCards",
+    "footer-mark": "/components/FooterMark"
+  }
+}

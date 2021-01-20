@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "债权！",
+  "usingComponents": {
+    "lend-cards": "/components/LendCards",
+    "top-bar": "/components/TopBar"
+  }
+}

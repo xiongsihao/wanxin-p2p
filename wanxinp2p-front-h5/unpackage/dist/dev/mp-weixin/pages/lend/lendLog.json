@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "出借日志！",
+  "usingComponents": {
+    "top-bar": "/components/TopBar"
+  }
+}

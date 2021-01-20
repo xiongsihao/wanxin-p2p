@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "开户成功！",
+  "usingComponents": {
+    "button-items": "/components/ButtonItems"
+  }
+}

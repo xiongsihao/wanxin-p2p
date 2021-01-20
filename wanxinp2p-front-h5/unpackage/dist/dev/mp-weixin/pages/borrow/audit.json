@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "审核中！",
+  "usingComponents": {
+    "button-items": "/components/ButtonItems",
+    "top-bar": "/components/TopBar"
+  }
+}

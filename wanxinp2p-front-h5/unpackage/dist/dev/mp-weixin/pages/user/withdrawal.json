@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "提现！",
+  "usingComponents": {
+    "top-bar": "/components/TopBar",
+    "m-input": "/components/m-input",
+    "button-items": "/components/ButtonItems"
+  }
+}

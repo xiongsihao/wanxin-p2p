@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "借款详情！",
+  "usingComponents": {
+    "button-items": "/components/ButtonItems",
+    "top-bar": "/components/TopBar"
+  }
+}

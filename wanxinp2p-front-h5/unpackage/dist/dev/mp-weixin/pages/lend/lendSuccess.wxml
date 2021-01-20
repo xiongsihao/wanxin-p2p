@@ -1,0 +1,1 @@
+<view class="content lendSuccess" bind:__l="__l"><top-bar title="出借成功" name="tit"></top-bar><view class="cardsBlock successCard"><view class="title">购买成功</view><view class="des">购买金额 50元</view><view class="title">回款方式</view><view class="des">购买金额 50元</view><view class="title">预计收益 2.2元</view><view class="last">购买金额 50元</view></view></view>

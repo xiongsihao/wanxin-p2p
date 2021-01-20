@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "借钱",
+  "usingComponents": {
+    "footer-mark": "/components/FooterMark",
+    "borrow-cards": "/components/BorrowCards"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "充值！",
+  "usingComponents": {
+    "top-bar": "/components/TopBar",
+    "m-input": "/components/m-input"
+  }
+}
