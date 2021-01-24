@@ -8,14 +8,20 @@ import cn.itcast.wanxinp2p.transaction.common.utils.SecurityUtil;
 import cn.itcast.wanxinp2p.transaction.entity.Project;
 import cn.itcast.wanxinp2p.transaction.mapper.ProjectMapper;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
+import cn.itcast.wanxinp2p.transaction.model.ProjectQueryDTO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author : xsh
@@ -78,6 +84,67 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         return projectDTO;
     }
 
+    /**
+     * 根据分页条件检索标的信息
+     *
+     * @param projectQueryDTO
+     * @param order
+     * @param pageNo
+     * @param pageSize
+     * @param sortBy
+     * @return
+     */
+    @Override
+    public PageVO<ProjectDTO> queryProjectsByQueryDTO(ProjectQueryDTO projectQueryDTO, String order, Integer pageNo, Integer pageSize, String sortBy) {
+
+        //带条件
+        QueryWrapper<Project> queryWrapper=new QueryWrapper<>();
+        // 标的类型
+        if (StringUtils.isNotBlank(projectQueryDTO.getType())) {
+            queryWrapper.lambda().eq(Project::getType, projectQueryDTO.getType());
+        } // 起止年化利率(投资人) -- 区间
+        if (null != projectQueryDTO.getStartAnnualRate()) {
+            queryWrapper.lambda().ge(Project::getAnnualRate,
+                    projectQueryDTO.getStartAnnualRate());
+        } if (null != projectQueryDTO.getEndAnnualRate()) {
+            queryWrapper.lambda().le(Project::getAnnualRate,
+                    projectQueryDTO.getStartAnnualRate());
+        } // 借款期限 -- 区间
+        if (null != projectQueryDTO.getStartPeriod()) {
+            queryWrapper.lambda().ge(Project::getPeriod,
+                    projectQueryDTO.getStartPeriod());
+        } if (null != projectQueryDTO.getEndPeriod()) {
+            queryWrapper.lambda().le(Project::getPeriod,
+                    projectQueryDTO.getEndPeriod());
+        } // 标的状态
+        if (StringUtils.isNotBlank(projectQueryDTO.getProjectStatus())) {
+            queryWrapper.lambda().eq(Project::getProjectStatus,
+                    projectQueryDTO.getProjectStatus());
+        }
+        //分页
+        // 构造分页对象
+        Page<Project> page = new Page<>(pageNo, pageSize);
+
+        //排序
+        if(StringUtils.isNotBlank(order)&&StringUtils.isNotBlank(sortBy)){
+            if(order.toLowerCase().equals("asc")){
+                queryWrapper.orderByAsc(sortBy);
+            }else if(order.toLowerCase().equals("desc")){
+                queryWrapper.orderByDesc(sortBy);
+            }
+        }else{
+            queryWrapper.lambda().orderByDesc(Project::getCreateDate);
+        }
+
+        //执行查询
+        IPage<Project> iPage=page(page,queryWrapper);
+
+        //封装结果
+        List<ProjectDTO> projectDTOList=convertProjectEntityListToDTOList(iPage.getRecords());
+        return  new PageVO<>(projectDTOList,iPage.getTotal(),pageNo, pageSize);
+
+    }
+
     private Project convertProjectDTOToEntity(ProjectDTO projectDTO) {
         if (projectDTO == null) {
             return null;
@@ -85,5 +152,18 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         Project project = new Project();
         BeanUtils.copyProperties(projectDTO, project);
         return project;
+    }
+
+    private List<ProjectDTO> convertProjectEntityListToDTOList(List<Project> projectList) {
+        if (projectList == null) {
+            return null;
+        }
+        List<ProjectDTO> dtoList = new ArrayList<>();
+        projectList.forEach(project -> {
+            ProjectDTO projectDTO = new ProjectDTO();
+            BeanUtils.copyProperties(project, projectDTO);
+            dtoList.add(projectDTO);
+        });
+        return dtoList;
     }
 }
