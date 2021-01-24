@@ -54,8 +54,8 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
     public Integer checkMobile(String mobile) {
         return getByMobile(mobile) != null ? 1 : 0;
     }
-
-    private ConsumerDTO getByMobile(String mobile) {
+    @Override
+    public ConsumerDTO getByMobile(String mobile) {
         Consumer entity = getOne(new QueryWrapper<Consumer>().lambda().eq(Consumer::getMobile, mobile));
         return convertConsumerEntityToDTO(entity);
     }

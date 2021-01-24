@@ -4,6 +4,7 @@ import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
 import cn.itcast.wanxinp2p.consumer.ConsumerAPI;
 import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
+import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
@@ -67,8 +68,22 @@ public class ConsumerController implements ConsumerAPI {
         return consumerService.createConsumer(consumerRequest);
     }
 
+    /**
+     * 获得当前登录用户
+     *
+     * @return
+     */
+    @Override
+    @ApiOperation("获取登录用户信息")
+    @GetMapping("/l/currConsumer")
+    public RestResponse<ConsumerDTO> getCurrConsumer() {
+        ConsumerDTO consumerDTO = consumerService.getByMobile(SecurityUtil.getUser().getMobile());
+        return RestResponse.success(consumerDTO);
+    }
+
+
     @ApiOperation("过网关受保护资源，进行认证拦截测试")
-    @ApiImplicitParam(name = "jsonToken", value = "访问令牌",required = true, dataType = "String")
+    @ApiImplicitParam(name = "jsonToken", value = "访问令牌", required = true, dataType = "String")
     @GetMapping(value = "/m/consumers/test")
     public RestResponse<String> testResources(String jsonToken) {
         return RestResponse.success(EncryptUtil.decodeUTF8StringBase64(jsonToken));
