@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.depository;
 
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 
 /**
  * @author : xsh
@@ -16,4 +17,11 @@ public interface DepositoryAgentApi {
      * @return
      */
     RestResponse<GatewayRequest> createConsumer(ConsumerRequest consumerRequest);
+
+    /**
+     * 向银行存管系统发送标的信息
+     * @param projectDTO
+     * @return
+     */
+    RestResponse<String> createProject(ProjectDTO projectDTO);
 }

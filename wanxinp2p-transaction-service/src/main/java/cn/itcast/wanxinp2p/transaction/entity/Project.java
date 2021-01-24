@@ -130,5 +130,9 @@ public class Project implements Serializable {
     @TableField("IS_ASSIGNMENT")
     private Integer isAssignment;
 
-
+    /**
+     * 发标请求流水号
+     */
+    @TableField("REQUEST_NO")
+    private String requestNo;
 }

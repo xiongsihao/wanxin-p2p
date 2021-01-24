@@ -4,6 +4,8 @@ import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
+import cn.itcast.wanxinp2p.transaction.agent.DepositoryAgentApiAgent;
+import cn.itcast.wanxinp2p.transaction.common.constant.TransactionErrorCode;
 import cn.itcast.wanxinp2p.transaction.common.utils.SecurityUtil;
 import cn.itcast.wanxinp2p.transaction.entity.Project;
 import cn.itcast.wanxinp2p.transaction.mapper.ProjectMapper;
@@ -11,6 +13,7 @@ import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.transaction.model.ProjectQueryDTO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +38,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     private ConsumerApiAgent consumerApiAgent;
     @Autowired
     private ConfigService configService;
+    @Autowired
+    private DepositoryAgentApiAgent depositoryAgentApiAgent;
+
     /**
      * 创建标的
      *
@@ -145,6 +151,39 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     }
 
+    /**
+     * 管理员审核标的信息
+     *
+     * @param id
+     * @param approveStatus
+     * @return
+     */
+    @Override
+    public String projectsApprovalStatus(Long id, String approveStatus) {
+        //1.根据id查询标的信息并转换为DTO对象
+        Project project= getById(id);
+        ProjectDTO projectDTO=convertProjectEntityToDTO(project);
+        //2.生成流水号(不存在才生成)
+        if(StringUtils.isBlank(project.getRequestNo())){
+            projectDTO.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+            update(Wrappers.<Project>lambdaUpdate().set(Project::getRequestNo,
+                    projectDTO.getRequestNo()).eq(Project::getId,id));
+        }
+
+        //3.通过feign远程访问存管代理服务，把标的信息传输过去
+        RestResponse<String> restResponse=depositoryAgentApiAgent.createProject(projectDTO);
+
+        if(DepositoryReturnCode.RETURN_CODE_00000.getCode()
+                .equals(restResponse.getResult())){
+            //4.根据结果修改状态
+            update(Wrappers.<Project>lambdaUpdate().set(Project::getStatus,Integer.parseInt(approveStatus)).eq(Project::getId,id));
+            return "success";
+        }
+
+        //5.如果失败就抛异常
+        throw  new BusinessException(TransactionErrorCode.E_150113);
+    }
+
     private Project convertProjectDTOToEntity(ProjectDTO projectDTO) {
         if (projectDTO == null) {
             return null;
@@ -165,5 +204,13 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             dtoList.add(projectDTO);
         });
         return dtoList;
+    }
+    private ProjectDTO convertProjectEntityToDTO(Project project) {
+        if (project == null) {
+            return null;
+        }
+        ProjectDTO projectDTO = new ProjectDTO();
+        BeanUtils.copyProperties(project, projectDTO);
+        return projectDTO;
     }
 }

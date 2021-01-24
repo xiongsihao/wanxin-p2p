@@ -32,4 +32,13 @@ public interface TransactionApi {
     RestResponse<PageVO<ProjectDTO>> queryProjects(
             ProjectQueryDTO projectQueryDTO,
             String order, Integer pageNo, Integer pageSize, String sortBy);
+
+
+    /**
+     * 管理员审核标的信息
+     * @param id
+     * @param approveStatus
+     * @return
+     */
+    RestResponse<String> projectsApprovalStatus(Long id, String approveStatus);
 }
