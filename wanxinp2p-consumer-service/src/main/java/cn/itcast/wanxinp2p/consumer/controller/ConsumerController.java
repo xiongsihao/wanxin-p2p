@@ -81,6 +81,21 @@ public class ConsumerController implements ConsumerAPI {
         return RestResponse.success(consumerDTO);
     }
 
+    /**
+     * 获取当前登录用户 (前端调用)
+     * consumerDTO中的loanAmount属性表示可贷额度，isBindCard表示是否开户
+     * 前端发标页面会访问该方法，获得这些数据后会进行业务处理。
+     * (即未开户无法借贷，借贷额度不能大于可贷额度)
+     * @return
+     */
+    @Override
+    @ApiOperation("获取登录用户信息")
+    @GetMapping("/my/consumers")
+    public RestResponse<ConsumerDTO> getMyConsumer() {
+        ConsumerDTO consumerDTO = consumerService.getByMobile(SecurityUtil.getUser().getMobile());
+        return RestResponse.success(consumerDTO);
+    }
+
 
     @ApiOperation("过网关受保护资源，进行认证拦截测试")
     @ApiImplicitParam(name = "jsonToken", value = "访问令牌", required = true, dataType = "String")
