@@ -1,5 +1,6 @@
 package cn.itcast.wanxinp2p.depository.service;
 
+import cn.itcast.wanxinp2p.common.cache.Cache;
 import cn.itcast.wanxinp2p.common.domain.BusinessException;
 import cn.itcast.wanxinp2p.common.domain.StatusCode;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
@@ -11,11 +12,13 @@ import cn.itcast.wanxinp2p.depository.common.constant.DepositoryRequestTypeCode;
 import cn.itcast.wanxinp2p.depository.entity.DepositoryRecord;
 import cn.itcast.wanxinp2p.depository.mapper.DepositoryRecordMapper;
 import cn.itcast.wanxinp2p.depository.model.DepositoryBaseResponse;
+import cn.itcast.wanxinp2p.depository.model.DepositoryRecordDTO;
 import cn.itcast.wanxinp2p.depository.model.DepositoryResponseDTO;
 import cn.itcast.wanxinp2p.depository.model.ProjectRequestDataDTO;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +40,8 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
     private ConfigService configService;
     @Autowired
     private OkHttpService okHttpService;
+    @Autowired
+    private Cache cache;
 
     @Override
     public GatewayRequest createConsumer(ConsumerRequest consumerRequest) {
@@ -188,5 +193,70 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
             throw new BusinessException(DepositoryErrorCode.E_160101);
         }
         return depositoryResponse;
+    }
+
+    /**
+     * 实现幂等性
+     * @param depositoryRecord
+     * @return
+     */
+    private DepositoryResponseDTO<DepositoryBaseResponse> handleIdempotent(DepositoryRecord depositoryRecord) {
+        // 根据requestNo进行查询
+        String requestNo=depositoryRecord.getRequestNo();
+        DepositoryRecordDTO depositoryRecordDTO=getByRequestNo(requestNo);
+
+        //1. 交易记录不存在,保存交易记录
+        if(null==depositoryRecordDTO){
+            saveDepositoryRecord(depositoryRecord);
+            return null;
+        }
+
+        //2. 重复点击，重复请求，利用redis的原子性，争夺执行权
+        if (StatusCode.STATUS_OUT.getCode() ==
+                depositoryRecordDTO.getRequestStatus()) {
+            //如果requestNo不存在则返回1,如果已经存在,则会返回（requestNo已存在个数+1）
+            Long count = cache.incrBy(requestNo, 1L);
+            if (count == 1) {
+                cache.expire(requestNo, 5); //设置requestNo有效期5秒
+                return null;
+            }
+            // 若count大于1，说明已有线程在执行该操作，直接返回“正在处理”
+            if (count > 1) {
+                throw new BusinessException(DepositoryErrorCode.E_160103);
+            }
+        }
+
+        //3. 交易记录已经存在，并且状态是“已同步”
+        return JSON.parseObject(depositoryRecordDTO.getResponseData(),
+                new TypeReference<DepositoryResponseDTO<DepositoryBaseResponse>>(){
+                });
+    }
+
+    /**
+     * 保存交易记录
+     */
+    private DepositoryRecord saveDepositoryRecord(DepositoryRecord depositoryRecord) {
+
+        // 设置请求时间
+        depositoryRecord.setCreateDate(LocalDateTime.now());
+        // 设置数据同步状态
+        depositoryRecord.setRequestStatus(StatusCode.STATUS_OUT.getCode());
+        // 保存数据
+        save(depositoryRecord);
+        return depositoryRecord;
+    }
+    private DepositoryRecordDTO getByRequestNo(String requestNo) {
+        DepositoryRecord depositoryRecord = getEntityByRequestNo(requestNo);
+        if (depositoryRecord == null) {
+            return null;
+        }
+        DepositoryRecordDTO depositoryRecordDTO = new DepositoryRecordDTO();
+        BeanUtils.copyProperties(depositoryRecord, depositoryRecordDTO);
+        return depositoryRecordDTO;
+    }
+
+    private DepositoryRecord getEntityByRequestNo(String requestNo) {
+        return getOne(new QueryWrapper<DepositoryRecord>().lambda()
+                .eq(DepositoryRecord::getRequestNo, requestNo));
     }
 }
