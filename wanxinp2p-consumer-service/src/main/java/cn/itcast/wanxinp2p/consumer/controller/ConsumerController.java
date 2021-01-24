@@ -13,10 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Api(value = "用户服务的Controller", tags = "Consumer", description = "用户服务API")
@@ -75,9 +72,9 @@ public class ConsumerController implements ConsumerAPI {
      */
     @Override
     @ApiOperation("获取登录用户信息")
-    @GetMapping("/l/currConsumer")
-    public RestResponse<ConsumerDTO> getCurrConsumer() {
-        ConsumerDTO consumerDTO = consumerService.getByMobile(SecurityUtil.getUser().getMobile());
+    @GetMapping("/l/currConsumer/{mobile}")
+    public RestResponse<ConsumerDTO> getCurrConsumer(@PathVariable("mobile") String mobile) {
+        ConsumerDTO consumerDTO = consumerService.getByMobile(mobile);
         return RestResponse.success(consumerDTO);
     }
 

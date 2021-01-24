@@ -4,6 +4,7 @@ import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
+import cn.itcast.wanxinp2p.transaction.common.utils.SecurityUtil;
 import cn.itcast.wanxinp2p.transaction.entity.Project;
 import cn.itcast.wanxinp2p.transaction.mapper.ProjectMapper;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
@@ -36,7 +37,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
      */
     @Override
     public ProjectDTO createProject(ProjectDTO projectDTO) {
-        RestResponse<ConsumerDTO> restResponse = consumerApiAgent.getCurrConsumer();
+        RestResponse<ConsumerDTO> restResponse = consumerApiAgent.getCurrConsumer(SecurityUtil.getUser().getMobile());
         // 设置用户编码
         projectDTO.setUserNo(restResponse.getResult().getUserNo());
         // 设置用户id

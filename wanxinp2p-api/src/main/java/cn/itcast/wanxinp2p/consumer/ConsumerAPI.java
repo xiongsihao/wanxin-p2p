@@ -32,7 +32,7 @@ public interface ConsumerAPI {
      * 获得当前登录用户（微服务调用）
      * @return
      */
-    RestResponse<ConsumerDTO> getCurrConsumer();
+    RestResponse<ConsumerDTO> getCurrConsumer(String mobile);
 
     /**
      * 获取当前登录用户 (前端调用)

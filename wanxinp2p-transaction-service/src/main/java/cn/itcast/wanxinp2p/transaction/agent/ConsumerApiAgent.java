@@ -4,6 +4,7 @@ import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * @author : xsh
@@ -12,6 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
  */
 @FeignClient(value = "consumer-service")
 public interface ConsumerApiAgent {
-    @GetMapping("/consumer/l/currConsumer")
-    public RestResponse<ConsumerDTO> getCurrConsumer();
+    @GetMapping("/consumer/l/currConsumer/{mobile}")
+    public RestResponse<ConsumerDTO> getCurrConsumer(@PathVariable("mobile") String mobile);
 }
