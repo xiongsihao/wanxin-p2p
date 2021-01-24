@@ -3,6 +3,9 @@ package cn.itcast.wanxinp2p.depository.service;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.depository.GatewayRequest;
 import cn.itcast.wanxinp2p.depository.entity.DepositoryRecord;
+import cn.itcast.wanxinp2p.depository.model.DepositoryBaseResponse;
+import cn.itcast.wanxinp2p.depository.model.DepositoryResponseDTO;
+import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -25,4 +28,11 @@ public interface DepositoryRecordService extends IService<DepositoryRecord> {
      * @return
      */
     Boolean modifyRequestStatus(String requestNo, Integer requestsStatus);
+
+    /**
+     * 保存标的
+     * @param projectDTO
+     * @return
+     */
+    DepositoryResponseDTO<DepositoryBaseResponse> createProject(ProjectDTO projectDTO);
 }

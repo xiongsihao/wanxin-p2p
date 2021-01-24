@@ -74,7 +74,8 @@ public class TransactionController implements TransactionApi {
             @ApiImplicitParam(name = "approveStatus", value = "审批状态", required = true, dataType = "ref", paramType = "path")})
     @PutMapping("/m/projects/{id}/projectStatus/{approveStatus}")
     public RestResponse<String> projectsApprovalStatus(@PathVariable("id") Long id,
-                                                       @PathVariable("approveStatus") String approveStatus){
-        return null;
+                                                       @PathVariable("approveStatus") String approveStatus) {
+        String result = projectService.projectsApprovalStatus(id, approveStatus);
+        return RestResponse.success(result);
     }
 }
