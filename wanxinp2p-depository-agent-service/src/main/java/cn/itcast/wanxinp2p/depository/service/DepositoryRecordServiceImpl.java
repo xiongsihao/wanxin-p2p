@@ -86,9 +86,16 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
     @Override
     public DepositoryResponseDTO<DepositoryBaseResponse> createProject(ProjectDTO projectDTO) {
         //1. 保存交易记录
-        DepositoryRecord depositoryRecord =
-                saveDepositoryRecord(projectDTO.getRequestNo(),
+        DepositoryRecord depositoryRecord =new DepositoryRecord(projectDTO.getRequestNo(),
                 DepositoryRequestTypeCode.CREATE.getCode(), "Project", projectDTO.getId());
+
+        //幂等性校验，防止短时间内多次请求
+        DepositoryResponseDTO<DepositoryBaseResponse> responseDTO = handleIdempotent(depositoryRecord);
+        if (responseDTO != null) {
+            return responseDTO;
+        }
+        // 根据requestNo获取最新的交易记录
+        depositoryRecord = getEntityByRequestNo(projectDTO.getRequestNo());
 
         //2. 签名数据
         // ProjectDTO 转换为 ProjectRequestDataDTO
