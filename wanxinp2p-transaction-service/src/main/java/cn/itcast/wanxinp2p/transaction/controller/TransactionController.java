@@ -78,4 +78,29 @@ public class TransactionController implements TransactionApi {
         String result = projectService.projectsApprovalStatus(id, approveStatus);
         return RestResponse.success(result);
     }
+
+    /**
+     * 标的信息快速检索
+     *
+     * @param projectQueryDTO
+     * @param pageNo
+     * @param pageSize
+     * @param sortBy
+     * @param order
+     * @return
+     */
+    @Override
+    @ApiOperation("从ES检索标的信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "projectQueryDTO", value = "标的信息条件对象", required = true, dataType = "ProjectQueryDTO", paramType = "body"),
+            @ApiImplicitParam(name = "order", value = "顺序", required = false, dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "pageNo", value = "页码", required = true, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "每页记录数", required = true, dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "sortBy", value = "排序字段", required = false, dataType = "string", paramType = "query")})
+    @PostMapping("/projects/indexes/q")
+    public RestResponse<PageVO<ProjectDTO>> queryProjects(@RequestBody ProjectQueryDTO projectQueryDTO,
+                                                          Integer pageNo, Integer pageSize, String sortBy, String order) {
+        PageVO<ProjectDTO> projects = projectService.queryProjects(projectQueryDTO, order, pageNo, pageSize, sortBy);
+        return RestResponse.success(projects);
+    }
 }

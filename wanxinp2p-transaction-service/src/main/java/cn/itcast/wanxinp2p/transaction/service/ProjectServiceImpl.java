@@ -4,6 +4,7 @@ import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
+import cn.itcast.wanxinp2p.transaction.agent.ContentSearchApiAgent;
 import cn.itcast.wanxinp2p.transaction.agent.DepositoryAgentApiAgent;
 import cn.itcast.wanxinp2p.transaction.common.constant.TransactionErrorCode;
 import cn.itcast.wanxinp2p.transaction.common.utils.SecurityUtil;
@@ -33,13 +34,15 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> implements ProjectService{
+public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> implements ProjectService {
     @Autowired
     private ConsumerApiAgent consumerApiAgent;
     @Autowired
     private ConfigService configService;
     @Autowired
     private DepositoryAgentApiAgent depositoryAgentApiAgent;
+    @Autowired
+    private ContentSearchApiAgent contentSearchApiAgent;
 
     /**
      * 创建标的
@@ -66,7 +69,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         projectDTO.setRepaymentWay(RepaymentWayCode.FIXED_REPAYMENT.getCode());
         // 设置标的类型
         projectDTO.setType("NEW");
-        Project project=convertProjectDTOToEntity(projectDTO);
+        Project project = convertProjectDTOToEntity(projectDTO);
 
         project.setBorrowerAnnualRate(configService.getBorrowerAnnualRate());
         project.setAnnualRate(configService.getAnnualRate());
@@ -104,7 +107,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     public PageVO<ProjectDTO> queryProjectsByQueryDTO(ProjectQueryDTO projectQueryDTO, String order, Integer pageNo, Integer pageSize, String sortBy) {
 
         //带条件
-        QueryWrapper<Project> queryWrapper=new QueryWrapper<>();
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
         // 标的类型
         if (StringUtils.isNotBlank(projectQueryDTO.getType())) {
             queryWrapper.lambda().eq(Project::getType, projectQueryDTO.getType());
@@ -112,14 +115,16 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         if (null != projectQueryDTO.getStartAnnualRate()) {
             queryWrapper.lambda().ge(Project::getAnnualRate,
                     projectQueryDTO.getStartAnnualRate());
-        } if (null != projectQueryDTO.getEndAnnualRate()) {
+        }
+        if (null != projectQueryDTO.getEndAnnualRate()) {
             queryWrapper.lambda().le(Project::getAnnualRate,
                     projectQueryDTO.getStartAnnualRate());
         } // 借款期限 -- 区间
         if (null != projectQueryDTO.getStartPeriod()) {
             queryWrapper.lambda().ge(Project::getPeriod,
                     projectQueryDTO.getStartPeriod());
-        } if (null != projectQueryDTO.getEndPeriod()) {
+        }
+        if (null != projectQueryDTO.getEndPeriod()) {
             queryWrapper.lambda().le(Project::getPeriod,
                     projectQueryDTO.getEndPeriod());
         } // 标的状态
@@ -132,22 +137,22 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         Page<Project> page = new Page<>(pageNo, pageSize);
 
         //排序
-        if(StringUtils.isNotBlank(order)&&StringUtils.isNotBlank(sortBy)){
-            if(order.toLowerCase().equals("asc")){
+        if (StringUtils.isNotBlank(order) && StringUtils.isNotBlank(sortBy)) {
+            if (order.toLowerCase().equals("asc")) {
                 queryWrapper.orderByAsc(sortBy);
-            }else if(order.toLowerCase().equals("desc")){
+            } else if (order.toLowerCase().equals("desc")) {
                 queryWrapper.orderByDesc(sortBy);
             }
-        }else{
+        } else {
             queryWrapper.lambda().orderByDesc(Project::getCreateDate);
         }
 
         //执行查询
-        IPage<Project> iPage=page(page,queryWrapper);
+        IPage<Project> iPage = page(page, queryWrapper);
 
         //封装结果
-        List<ProjectDTO> projectDTOList=convertProjectEntityListToDTOList(iPage.getRecords());
-        return  new PageVO<>(projectDTOList,iPage.getTotal(),pageNo, pageSize);
+        List<ProjectDTO> projectDTOList = convertProjectEntityListToDTOList(iPage.getRecords());
+        return new PageVO<>(projectDTOList, iPage.getTotal(), pageNo, pageSize);
 
     }
 
@@ -161,27 +166,36 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Override
     public String projectsApprovalStatus(Long id, String approveStatus) {
         //1.根据id查询标的信息并转换为DTO对象
-        Project project= getById(id);
-        ProjectDTO projectDTO=convertProjectEntityToDTO(project);
+        Project project = getById(id);
+        ProjectDTO projectDTO = convertProjectEntityToDTO(project);
         //2.生成流水号(不存在才生成)
-        if(StringUtils.isBlank(project.getRequestNo())){
+        if (StringUtils.isBlank(project.getRequestNo())) {
             projectDTO.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
             update(Wrappers.<Project>lambdaUpdate().set(Project::getRequestNo,
-                    projectDTO.getRequestNo()).eq(Project::getId,id));
+                    projectDTO.getRequestNo()).eq(Project::getId, id));
         }
 
         //3.通过feign远程访问存管代理服务，把标的信息传输过去
-        RestResponse<String> restResponse=depositoryAgentApiAgent.createProject(projectDTO);
+        RestResponse<String> restResponse = depositoryAgentApiAgent.createProject(projectDTO);
 
-        if(DepositoryReturnCode.RETURN_CODE_00000.getCode()
-                .equals(restResponse.getResult())){
+        if (DepositoryReturnCode.RETURN_CODE_00000.getCode()
+                .equals(restResponse.getResult())) {
             //4.根据结果修改状态
-            update(Wrappers.<Project>lambdaUpdate().set(Project::getStatus,Integer.parseInt(approveStatus)).eq(Project::getId,id));
+            update(Wrappers.<Project>lambdaUpdate().set(Project::getStatus, Integer.parseInt(approveStatus)).eq(Project::getId, id));
             return "success";
         }
 
         //5.如果失败就抛异常
-        throw  new BusinessException(TransactionErrorCode.E_150113);
+        throw new BusinessException(TransactionErrorCode.E_150113);
+    }
+
+    @Override
+    public PageVO<ProjectDTO> queryProjects(ProjectQueryDTO projectQueryDTO, String order, Integer pageNo, Integer pageSize, String sortBy) {
+        RestResponse<PageVO<ProjectDTO>> esResponse = contentSearchApiAgent.queryProjectIndex(projectQueryDTO, pageNo, pageSize, sortBy, order);
+        if (!esResponse.isSuccessful()) {
+            throw new BusinessException(CommonErrorCode.UNKOWN);
+        }
+        return esResponse.getResult();
     }
 
     private Project convertProjectDTOToEntity(ProjectDTO projectDTO) {
@@ -205,6 +219,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         });
         return dtoList;
     }
+
     private ProjectDTO convertProjectEntityToDTO(Project project) {
         if (project == null) {
             return null;

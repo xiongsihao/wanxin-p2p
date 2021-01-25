@@ -37,4 +37,7 @@ public interface ProjectService {
      * @return
      */
     String projectsApprovalStatus(Long id, String approveStatus);
+
+    PageVO<ProjectDTO> queryProjects(ProjectQueryDTO projectQueryDTO, String order, Integer pageNo, Integer pageSize, String sortBy);
 }
+
