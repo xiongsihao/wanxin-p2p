@@ -1,0 +1,19 @@
+app:
+  id: content-search-service
+apollo:
+  bootstrap:
+    enabled: true
+    #    eagerLoad:
+    #      enabled: true
+    namespaces: application,micro_service.spring-boot-http,micro_service.spring-eureka,micro_service.spring-cloud-feign,micro_service.spring-ribbon,micro_service.spring-boot-es
+
+spring:
+  application:
+    name: content-search-service
+
+logging:
+  config: classpath:log4j2-dev.xml
+
+
+
+

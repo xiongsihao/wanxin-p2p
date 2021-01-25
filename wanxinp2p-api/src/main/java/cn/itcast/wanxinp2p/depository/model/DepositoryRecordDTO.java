@@ -1,4 +1,4 @@
-﻿package cn.itcast.wanxinp2p.depository.model;
+package cn.itcast.wanxinp2p.depository.model;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -46,8 +46,8 @@ public class DepositoryRecordDTO implements Serializable {
     @ApiModelProperty(value = "消息确认时间")
     private LocalDateTime confirmDate;
 
-	@ApiModelProperty("返回数据")
-	private String responseData;
+    @ApiModelProperty("返回数据")
+    private String responseData;
 
 
 }
