@@ -4,6 +4,7 @@ import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
 import cn.itcast.wanxinp2p.consumer.ConsumerAPI;
 import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
+import cn.itcast.wanxinp2p.consumer.model.BorrowerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
@@ -83,6 +84,7 @@ public class ConsumerController implements ConsumerAPI {
      * consumerDTO中的loanAmount属性表示可贷额度，isBindCard表示是否开户
      * 前端发标页面会访问该方法，获得这些数据后会进行业务处理。
      * (即未开户无法借贷，借贷额度不能大于可贷额度)
+     *
      * @return
      */
     @Override
@@ -91,6 +93,20 @@ public class ConsumerController implements ConsumerAPI {
     public RestResponse<ConsumerDTO> getMyConsumer() {
         ConsumerDTO consumerDTO = consumerService.getByMobile(SecurityUtil.getUser().getMobile());
         return RestResponse.success(consumerDTO);
+    }
+
+    /**
+     * 获取借款人用户信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    @ApiOperation("获取借款人用户信息")
+    @ApiImplicitParam(name = "id", value = "用户标识", required = true, dataType = "Long", paramType = "path")
+    @GetMapping("/my/borrowers/{id}")
+    public RestResponse<BorrowerDTO> getBorrower(@PathVariable Long id) {
+        return null;
     }
 
 

@@ -5,6 +5,7 @@ import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.transaction.TransactionApi;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.transaction.model.ProjectQueryDTO;
+import cn.itcast.wanxinp2p.transaction.model.TenderOverviewDTO;
 import cn.itcast.wanxinp2p.transaction.service.ProjectService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -12,6 +13,8 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author : xsh
@@ -102,5 +105,35 @@ public class TransactionController implements TransactionApi {
                                                           Integer pageNo, Integer pageSize, String sortBy, String order) {
         PageVO<ProjectDTO> projects = projectService.queryProjects(projectQueryDTO, order, pageNo, pageSize, sortBy);
         return RestResponse.success(projects);
+    }
+
+    /**
+     * 通过ids获取多个标的
+     * 交易中心查询标的信息接口
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    @ApiOperation("通过ids获取多个标的")
+    @GetMapping("/projects/{ids}")
+    public RestResponse<List<ProjectDTO>> queryProjectsIds(@PathVariable String ids) {
+
+        return null;
+    }
+
+    /**
+     * 根据标的id查询投标记录
+     * 交易中心查询投标记录接口
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    @ApiOperation("根据标的id查询投标记录")
+    @GetMapping("/tenders/projects/{id}")
+    public RestResponse<List<TenderOverviewDTO>> queryTendersByProjectId(@PathVariable Long id) {
+
+        return null;
     }
 }

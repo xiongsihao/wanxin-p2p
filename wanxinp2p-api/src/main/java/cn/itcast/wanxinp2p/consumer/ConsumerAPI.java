@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.consumer;
 
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import cn.itcast.wanxinp2p.consumer.model.BorrowerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
@@ -39,4 +40,11 @@ public interface ConsumerAPI {
      * @return
      */
     RestResponse<ConsumerDTO> getMyConsumer();
+
+    /**
+     * 获取借款人用户信息
+     * @param id
+     * @return
+     */
+    RestResponse<BorrowerDTO> getBorrower(Long id);
 }
