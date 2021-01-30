@@ -3,6 +3,9 @@ package cn.itcast.wanxinp2p.transaction.service;
 import cn.itcast.wanxinp2p.common.domain.PageVO;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.transaction.model.ProjectQueryDTO;
+import cn.itcast.wanxinp2p.transaction.model.TenderOverviewDTO;
+
+import java.util.List;
 
 /**
  * @author : xsh
@@ -39,5 +42,19 @@ public interface ProjectService {
     String projectsApprovalStatus(Long id, String approveStatus);
 
     PageVO<ProjectDTO> queryProjects(ProjectQueryDTO projectQueryDTO, String order, Integer pageNo, Integer pageSize, String sortBy);
+
+    /**
+     * 通过ids获取多个标的
+     * @param ids
+     * @return
+     */
+    List<ProjectDTO> queryProjectsIds(String ids);
+
+    /**
+     * 根据标的id查询投标记录
+     * @param id
+     * @return
+     */
+    List<TenderOverviewDTO> queryTendersByProjectId(Long id);
 }
 

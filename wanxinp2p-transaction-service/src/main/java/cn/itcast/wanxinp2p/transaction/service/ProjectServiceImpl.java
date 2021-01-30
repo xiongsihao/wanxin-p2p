@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.transaction.service;
 
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
+import cn.itcast.wanxinp2p.common.util.CommonUtil;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
 import cn.itcast.wanxinp2p.transaction.agent.ContentSearchApiAgent;
@@ -9,9 +10,12 @@ import cn.itcast.wanxinp2p.transaction.agent.DepositoryAgentApiAgent;
 import cn.itcast.wanxinp2p.transaction.common.constant.TransactionErrorCode;
 import cn.itcast.wanxinp2p.transaction.common.utils.SecurityUtil;
 import cn.itcast.wanxinp2p.transaction.entity.Project;
+import cn.itcast.wanxinp2p.transaction.entity.Tender;
 import cn.itcast.wanxinp2p.transaction.mapper.ProjectMapper;
+import cn.itcast.wanxinp2p.transaction.mapper.TenderMapper;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import cn.itcast.wanxinp2p.transaction.model.ProjectQueryDTO;
+import cn.itcast.wanxinp2p.transaction.model.TenderOverviewDTO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -23,8 +27,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,6 +49,8 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     private DepositoryAgentApiAgent depositoryAgentApiAgent;
     @Autowired
     private ContentSearchApiAgent contentSearchApiAgent;
+    @Autowired
+    private TenderMapper tenderMapper;
 
     /**
      * 创建标的
@@ -198,6 +206,56 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         return esResponse.getResult();
     }
 
+    /**
+     * 通过ids获取多个标的
+     *
+     * @param ids
+     * @return
+     */
+    @Override
+    public List<ProjectDTO> queryProjectsIds(String ids) {
+        //1. 查询标的信息
+        QueryWrapper<Project> queryWrapper = new QueryWrapper<>();
+        List<Long> list = new ArrayList<>();
+        Arrays.asList(ids.split(",")).forEach(str -> {
+            list.add(Long.parseLong(str));
+        });
+        queryWrapper.lambda().in(Project::getId, list); // .... where  id  in  (1,2,3,4,5)
+        List<Project> projects = list(queryWrapper);
+        List<ProjectDTO> dtos = new ArrayList<>();
+        //2.转换为DTO对象
+        for (Project project : projects) {
+            ProjectDTO projectDTO = convertProjectEntityToDTO(project);
+            // 3. 获取剩余额度
+            projectDTO.setRemainingAmount(getProjectRemainingAmount(project));
+            //4. 查询出借人数
+            projectDTO.setTenderCount(
+                    tenderMapper.selectCount(Wrappers.<Tender>lambdaQuery().eq(Tender::getProjectId, project.getId()))
+            );
+            dtos.add(projectDTO);
+        }
+        return dtos;
+    }
+
+    /**
+     * 根据标的id查询投标记录
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public List<TenderOverviewDTO> queryTendersByProjectId(Long id) {
+        List<Tender> tenderList = tenderMapper.selectList(Wrappers.<Tender>lambdaQuery().eq(Tender::getProjectId, id));
+        List<TenderOverviewDTO> tenderOverviewDTOList = new ArrayList<>();
+        tenderList.forEach(tender -> {
+            TenderOverviewDTO tenderOverviewDTO = new TenderOverviewDTO();
+            BeanUtils.copyProperties(tender, tenderOverviewDTO);
+            tenderOverviewDTO.setConsumerUsername(CommonUtil.hiddenMobile(tenderOverviewDTO.getConsumerUsername()));
+            tenderOverviewDTOList.add(tenderOverviewDTO);
+        });
+        return tenderOverviewDTOList;
+    }
+
     private Project convertProjectDTOToEntity(ProjectDTO projectDTO) {
         if (projectDTO == null) {
             return null;
@@ -227,5 +285,24 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         ProjectDTO projectDTO = new ProjectDTO();
         BeanUtils.copyProperties(project, projectDTO);
         return projectDTO;
+    }
+
+    /**
+     * 获取标的剩余可投额度
+     *
+     * @param project
+     * @return
+     */
+    private BigDecimal getProjectRemainingAmount(Project project) {
+        // 根据标的id在投标表查询已投金额
+        List<BigDecimal> decimalList =
+                tenderMapper.selectAmountInvestedByProjectId(project.getId());
+        // 求和结果集
+        BigDecimal amountInvested = new BigDecimal("0.0");
+        for (BigDecimal d : decimalList) {
+            amountInvested = amountInvested.add(d);
+        }
+        // 得到剩余额度
+        return project.getAmount().subtract(amountInvested);
     }
 }

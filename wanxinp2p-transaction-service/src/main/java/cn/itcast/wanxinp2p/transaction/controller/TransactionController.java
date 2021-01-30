@@ -119,7 +119,8 @@ public class TransactionController implements TransactionApi {
     @GetMapping("/projects/{ids}")
     public RestResponse<List<ProjectDTO>> queryProjectsIds(@PathVariable String ids) {
 
-        return null;
+        List<ProjectDTO> projectDTOS = projectService.queryProjectsIds(ids);
+        return RestResponse.success(projectDTOS);
     }
 
     /**
@@ -134,6 +135,6 @@ public class TransactionController implements TransactionApi {
     @GetMapping("/tenders/projects/{id}")
     public RestResponse<List<TenderOverviewDTO>> queryTendersByProjectId(@PathVariable Long id) {
 
-        return null;
+        return RestResponse.success(projectService.queryTendersByProjectId(id));
     }
 }
