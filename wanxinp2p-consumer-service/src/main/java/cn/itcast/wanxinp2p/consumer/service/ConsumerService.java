@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.consumer.service;
 
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
+import cn.itcast.wanxinp2p.consumer.model.BorrowerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
@@ -50,4 +51,10 @@ public interface ConsumerService extends IService<Consumer> {
      */
     ConsumerDTO getByMobile(String mobile);
 
+    /**
+     * 获取借款人基本信息
+     * @param id
+     * @return
+     */
+    BorrowerDTO getBorrower(Long id);
 }

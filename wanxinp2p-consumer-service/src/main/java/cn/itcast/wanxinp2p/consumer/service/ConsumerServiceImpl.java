@@ -4,16 +4,14 @@ import cn.itcast.wanxinp2p.account.model.AccountDTO;
 import cn.itcast.wanxinp2p.account.model.AccountRegisterDTO;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
+import cn.itcast.wanxinp2p.common.util.IDCardUtil;
 import cn.itcast.wanxinp2p.consumer.agent.AccountApiAgent;
 import cn.itcast.wanxinp2p.consumer.agent.DepositoryAgentApiAgent;
 import cn.itcast.wanxinp2p.consumer.common.ConsumerErrorCode;
 import cn.itcast.wanxinp2p.consumer.entity.BankCard;
 import cn.itcast.wanxinp2p.consumer.entity.Consumer;
 import cn.itcast.wanxinp2p.consumer.mapper.ConsumerMapper;
-import cn.itcast.wanxinp2p.consumer.model.BankCardDTO;
-import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
-import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
-import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.consumer.model.*;
 import cn.itcast.wanxinp2p.depository.GatewayRequest;
 import cn.itcast.wanxinp2p.depository.model.DepositoryConsumerResponse;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,6 +24,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 /**
  * @author : xsh
@@ -54,9 +54,37 @@ public class ConsumerServiceImpl extends ServiceImpl<ConsumerMapper, Consumer> i
     public Integer checkMobile(String mobile) {
         return getByMobile(mobile) != null ? 1 : 0;
     }
+
     @Override
     public ConsumerDTO getByMobile(String mobile) {
         Consumer entity = getOne(new QueryWrapper<Consumer>().lambda().eq(Consumer::getMobile, mobile));
+        return convertConsumerEntityToDTO(entity);
+    }
+
+    /**
+     * 获取借款人基本信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public BorrowerDTO getBorrower(Long id) {
+        ConsumerDTO consumerDTO = get(id);
+        BorrowerDTO borrowerDTO = new BorrowerDTO();
+        BeanUtils.copyProperties(consumerDTO, borrowerDTO);
+        Map<String, String> cardInfo = IDCardUtil.getInfo(borrowerDTO.getIdNumber());
+        borrowerDTO.setAge(new Integer(cardInfo.get("age")));
+        borrowerDTO.setBirthday(cardInfo.get("birthday"));
+        borrowerDTO.setGender(cardInfo.get("gender"));
+        return borrowerDTO;
+    }
+
+    private ConsumerDTO get(Long id) {
+        Consumer entity = getById(id);
+        if (entity == null) {
+            log.info("id为{}的用户信息不存在", id);
+            throw new BusinessException(ConsumerErrorCode.E_140101);
+        }
         return convertConsumerEntityToDTO(entity);
     }
 

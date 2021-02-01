@@ -119,7 +119,7 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
+            <artifactId>spring-bootspringfox-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
 

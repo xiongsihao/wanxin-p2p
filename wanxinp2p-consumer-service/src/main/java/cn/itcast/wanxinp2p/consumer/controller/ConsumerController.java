@@ -106,7 +106,7 @@ public class ConsumerController implements ConsumerAPI {
     @ApiImplicitParam(name = "id", value = "用户标识", required = true, dataType = "Long", paramType = "path")
     @GetMapping("/my/borrowers/{id}")
     public RestResponse<BorrowerDTO> getBorrower(@PathVariable Long id) {
-        return null;
+        return RestResponse.success(consumerService.getBorrower(id));
     }
 
 
