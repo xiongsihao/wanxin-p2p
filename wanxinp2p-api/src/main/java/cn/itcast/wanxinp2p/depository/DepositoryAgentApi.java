@@ -2,6 +2,7 @@ package cn.itcast.wanxinp2p.depository;
 
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.depository.model.UserAutoPreTransactionRequest;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 
 /**
@@ -24,4 +25,11 @@ public interface DepositoryAgentApi {
      * @return
      */
     RestResponse<String> createProject(ProjectDTO projectDTO);
+
+    /**
+     * 预授权处理
+     * @param userAutoPreTransactionRequest 预授权处理信息
+     * @return
+     */
+    RestResponse<String> userAutoPreTransaction(UserAutoPreTransactionRequest userAutoPreTransactionRequest);
 }

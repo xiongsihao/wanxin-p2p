@@ -6,6 +6,7 @@ import cn.itcast.wanxinp2p.depository.DepositoryAgentApi;
 import cn.itcast.wanxinp2p.depository.GatewayRequest;
 import cn.itcast.wanxinp2p.depository.model.DepositoryBaseResponse;
 import cn.itcast.wanxinp2p.depository.model.DepositoryResponseDTO;
+import cn.itcast.wanxinp2p.depository.model.UserAutoPreTransactionRequest;
 import cn.itcast.wanxinp2p.depository.service.DepositoryRecordService;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import io.swagger.annotations.Api;
@@ -53,5 +54,19 @@ public class DepositoryAgentController implements DepositoryAgentApi {
         restResponse.setResult(depositoryResponse.getRespData().getRespCode());
         restResponse.setMsg(depositoryResponse.getRespData().getRespMsg());
         return restResponse;
+    }
+
+    /**
+     * 预授权处理
+     *
+     * @param userAutoPreTransactionRequest 预授权处理信息
+     * @return
+     */
+    @Override
+    @ApiOperation(value = "预授权处理")
+    @ApiImplicitParam(name = "userAutoPreTransactionRequest", value = "平台向存管系统发送标的信息", required = true, dataType = "UserAutoPreTransactionRequest", paramType = "body")
+    @PostMapping("/l/user-auto-pre-transaction")
+    public RestResponse<String> userAutoPreTransaction(@RequestBody UserAutoPreTransactionRequest userAutoPreTransactionRequest) {
+        return null;
     }
 }

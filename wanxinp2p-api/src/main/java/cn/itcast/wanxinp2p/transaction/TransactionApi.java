@@ -2,9 +2,7 @@ package cn.itcast.wanxinp2p.transaction;
 
 import cn.itcast.wanxinp2p.common.domain.PageVO;
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
-import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
-import cn.itcast.wanxinp2p.transaction.model.ProjectQueryDTO;
-import cn.itcast.wanxinp2p.transaction.model.TenderOverviewDTO;
+import cn.itcast.wanxinp2p.transaction.model.*;
 
 import java.util.List;
 
@@ -71,4 +69,11 @@ public interface TransactionApi {
      * @return
      */
     RestResponse<List<TenderOverviewDTO>> queryTendersByProjectId(Long id);
+
+    /**
+     * 用户投标
+     * @param projectInvestDTO
+     * @return
+     */
+    RestResponse<TenderDTO> createTender(ProjectInvestDTO projectInvestDTO);
 }
