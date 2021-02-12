@@ -5,10 +5,13 @@ import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.common.util.CommonUtil;
 import cn.itcast.wanxinp2p.consumer.model.BalanceDetailsDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
+import cn.itcast.wanxinp2p.depository.model.UserAutoPreTransactionRequest;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
 import cn.itcast.wanxinp2p.transaction.agent.ContentSearchApiAgent;
 import cn.itcast.wanxinp2p.transaction.agent.DepositoryAgentApiAgent;
+import cn.itcast.wanxinp2p.transaction.common.constant.TradingCode;
 import cn.itcast.wanxinp2p.transaction.common.constant.TransactionErrorCode;
+import cn.itcast.wanxinp2p.transaction.common.utils.IncomeCalcUtil;
 import cn.itcast.wanxinp2p.transaction.common.utils.SecurityUtil;
 import cn.itcast.wanxinp2p.transaction.entity.Project;
 import cn.itcast.wanxinp2p.transaction.entity.Tender;
@@ -301,16 +304,92 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
                 throw new BusinessException(TransactionErrorCode.E_150111);
             }
             //2. 保存投标信息并发送给存管代理服务
+            //2.1 保存投标信息
+            final Tender tender = new Tender();
+            // 投资人投标金额( 投标冻结金额 )
+            tender.setAmount(amount);
+            // 投标人用户标识
+            tender.setConsumerId(restResponse.getResult().getId());
+            tender.setConsumerUsername(restResponse.getResult().getUsername());
+            // 投标人用户编码
+            tender.setUserNo(restResponse.getResult().getUserNo());
+            // 标的标识
+            tender.setProjectId(projectInvestDTO.getId());
+            // 标的编码
+            tender.setProjectNo(project.getProjectNo());
+            // 投标状态
+            tender.setTenderStatus(TradingCode.FROZEN.getCode());
+            // 创建时间
+            tender.setCreateDate(LocalDateTime.now());
+            // 请求流水号
+            tender.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
+            // 可用状态
+            tender.setStatus(0);
+            tender.setProjectName(project.getName());
+            // 标的期限(单位:天)
+            tender.setProjectPeriod(project.getPeriod());
+            // 年化利率(投资人视图)
+            tender.setProjectAnnualRate(project.getAnnualRate());
+            // 保存到数据库
+            tenderMapper.insert(tender);
+            //2.2 发送数据给存管代理服务
+            // 构造请求数据
+            UserAutoPreTransactionRequest userAutoPreTransactionRequest = new
+                    UserAutoPreTransactionRequest();
+            // 冻结金额
+            userAutoPreTransactionRequest.setAmount(amount);
+            // 预处理业务类型
+            userAutoPreTransactionRequest.setBizType(PreprocessBusinessTypeCode.TENDER.getCode());
+            // 标的号
+            userAutoPreTransactionRequest.setProjectNo(project.getProjectNo());
+            // 请求流水号
+            userAutoPreTransactionRequest.setRequestNo(tender.getRequestNo());
+            // 投资人用户编码
+            userAutoPreTransactionRequest.setUserNo(restResponse.getResult().getUserNo());
+            // 设置 关联业务实体标识
+            userAutoPreTransactionRequest.setId(tender.getId());
+            // 远程调用存管代理服务
+            RestResponse<String> response = depositoryAgentApiAgent.userAutoPreTransaction(userAutoPreTransactionRequest);
 
+            //3.根据结果更新投标状态
+            //3.1 判断结果
+            if (response.getResult().equals(DepositoryReturnCode.RETURN_CODE_00000.getCode())) {
+                //3.2 修改状态为：已同步
+                tender.setStatus(1);
+                tenderMapper.updateById(tender);
+                //3.3 判断当前标的是否满标，如果满标，更新标的状态
+                BigDecimal remainAmont = getProjectRemainingAmount(project);
+                if (remainAmont.compareTo(new BigDecimal(0)) == 0) {
+                    project.setProjectStatus(ProjectCode.FULLY.getCode());
+                    updateById(project);
+                }
 
-
-
-            //3. 根据结果更新投标状态
+                //3.4 转换为DTO对象，并封装相关数据
+                TenderDTO tenderDTO = convertTenderEntityToDTO(tender);
+                // 封装标的信息
+                project.setRepaymentWay(RepaymentWayCode.FIXED_REPAYMENT.getDesc());
+                tenderDTO.setProject(convertProjectEntityToDTO(project));
+                // 封装预期收益
+                // 根据标的期限计算还款月数
+                final Double ceil = Math.ceil(project.getPeriod() / 30.0);
+                Integer month = ceil.intValue();
+                tenderDTO.setExpectedIncome(IncomeCalcUtil.getIncomeTotalInterest(new BigDecimal(projectInvestDTO.getAmount()), configService.getAnnualRate(), month));
+                return tenderDTO;
+            } else {
+                throw new BusinessException(TransactionErrorCode.E_150113);
+            }
         } else {
             throw new BusinessException(TransactionErrorCode.E_150110);
         }
+    }
 
-        return null;
+    private TenderDTO convertTenderEntityToDTO(Tender tender) {
+        if (tender == null) {
+            return null;
+        }
+        TenderDTO tenderDTO = new TenderDTO();
+        BeanUtils.copyProperties(tender, tenderDTO);
+        return tenderDTO;
     }
 
     private Project convertProjectDTOToEntity(ProjectDTO projectDTO) {
