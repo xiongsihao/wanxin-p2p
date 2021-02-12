@@ -3,6 +3,7 @@ package cn.itcast.wanxinp2p.transaction.service;
 import cn.itcast.wanxinp2p.common.domain.*;
 import cn.itcast.wanxinp2p.common.util.CodeNoUtil;
 import cn.itcast.wanxinp2p.common.util.CommonUtil;
+import cn.itcast.wanxinp2p.consumer.model.BalanceDetailsDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import cn.itcast.wanxinp2p.transaction.agent.ConsumerApiAgent;
 import cn.itcast.wanxinp2p.transaction.agent.ContentSearchApiAgent;
@@ -262,6 +263,53 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
      */
     @Override
     public TenderDTO createTender(ProjectInvestDTO projectInvestDTO) {
+        //1.前置条件判断
+        // 1.1 判断投标金额是否大于最小投标金额
+        // 获得投标金额
+        BigDecimal amount = new BigDecimal(projectInvestDTO.getAmount());
+        //获得最小投标金额
+        BigDecimal miniInvestmentAmount = configService.getMiniInvestmentAmount();
+        if (amount.compareTo(miniInvestmentAmount) < 0) {
+            throw new BusinessException(TransactionErrorCode.E_150109);
+        }
+        //1.2 判断用户账户余额是否足够
+        //得到当前登录用户
+        LoginUser user = SecurityUtil.getUser();
+        //通过手机号查询用户信息
+        RestResponse<ConsumerDTO> restResponse = consumerApiAgent.getCurrConsumer(user.getMobile());
+        //通过用户编号查询账户余额
+        RestResponse<BalanceDetailsDTO> balanceDetailsDTORestResponse = consumerApiAgent.getBalance(restResponse.getResult().getUserNo());
+        BigDecimal myBalance = balanceDetailsDTORestResponse.getResult().getBalance();
+        if (myBalance.compareTo(amount) < 0) {
+            throw new BusinessException(TransactionErrorCode.E_150112);
+        }
+        //1.3 判断标的是否满标，标的状态为FULLY就表示满标
+        Project project = getById(projectInvestDTO.getId());
+        if (project.getProjectStatus().equalsIgnoreCase("FULLY")) {
+            throw new BusinessException(TransactionErrorCode.E_150114);
+        }
+        //1.4 判断投标金额是否超过剩余未投金额
+        BigDecimal remainingAmount = getProjectRemainingAmount(project);
+        if (amount.compareTo(remainingAmount) < 1) {
+            //1.5 判断此次投标后的剩余未投金额是否满足最小投标金额
+            // 例如：借款人需要借1万 现在已经投标了8千 还剩2千 本次投标1950元
+            // 公式：此次投标后的剩余未投金额 = 目前剩余未投金额 - 本次投标金额
+            //还剩下50元投标金额小于最小投标金额，这个标的剩下的将会被最小投标金额校验住，所以应该提前检验；
+            BigDecimal subtract = remainingAmount.subtract(amount);
+            int result = subtract.compareTo(configService.getMiniInvestmentAmount());
+            if (result < 0) {
+                throw new BusinessException(TransactionErrorCode.E_150111);
+            }
+            //2. 保存投标信息并发送给存管代理服务
+
+
+
+
+            //3. 根据结果更新投标状态
+        } else {
+            throw new BusinessException(TransactionErrorCode.E_150110);
+        }
+
         return null;
     }
 

@@ -1,6 +1,7 @@
 package cn.itcast.wanxinp2p.transaction.agent;
 
 import cn.itcast.wanxinp2p.common.domain.RestResponse;
+import cn.itcast.wanxinp2p.consumer.model.BalanceDetailsDTO;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,4 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ConsumerApiAgent {
     @GetMapping("/consumer/l/currConsumer/{mobile}")
     public RestResponse<ConsumerDTO> getCurrConsumer(@PathVariable("mobile") String mobile);
+
+    @GetMapping("/consumer/l/balances/{userNo}")
+    public RestResponse<BalanceDetailsDTO> getBalance(@PathVariable("userNo") String userNo);
 }
