@@ -116,7 +116,7 @@ public class ConsumerController implements ConsumerAPI {
     }
 
     /**
-     * 获取当前登录用户余额信息
+     * 获取当前登录用户余额信息（供微服务间调用）
      *
      * @param userNo
      * @return
@@ -128,6 +128,18 @@ public class ConsumerController implements ConsumerAPI {
     public RestResponse<BalanceDetailsDTO> getBalance(@PathVariable String userNo) {
         RestResponse<BalanceDetailsDTO> balanceFromDepository = getBalanceFromDepository(userNo);
         return balanceFromDepository;
+    }
+
+    /**
+     * 获取当前登录用户余额信息（供前端调用）
+     *
+     * @return
+     */
+    @Override
+    @GetMapping("/my/balances")
+    public RestResponse<BalanceDetailsDTO> getMyBalance() {
+        ConsumerDTO consumerDTO = consumerService.getByMobile(SecurityUtil.getUser().getMobile());
+        return getBalanceFromDepository(consumerDTO.getUserNo());
     }
 
     @Value("${depository.url}")

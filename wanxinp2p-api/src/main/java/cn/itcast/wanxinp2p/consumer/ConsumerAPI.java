@@ -13,6 +13,7 @@ public interface ConsumerAPI {
 
     /**
      * 用户注册 保存用户信息
+     *
      * @param consumerRegisterDTO
      * @return
      */
@@ -21,6 +22,7 @@ public interface ConsumerAPI {
 
     /**
      * 生成开户请求数据
+     *
      * @param consumerRequest 开户信息
      * @return
      */
@@ -28,27 +30,37 @@ public interface ConsumerAPI {
 
     /**
      * 获得当前登录用户（微服务调用）
+     *
      * @return
      */
     RestResponse<ConsumerDTO> getCurrConsumer(String mobile);
 
     /**
      * 获取当前登录用户 (前端调用)
+     *
      * @return
      */
     RestResponse<ConsumerDTO> getMyConsumer();
 
     /**
      * 获取借款人用户信息
+     *
      * @param id
      * @return
      */
     RestResponse<BorrowerDTO> getBorrower(Long id);
 
     /**
-     * 获取当前登录用户余额信息
+     * 获取当前登录用户余额信息（供微服务间调用）
+     *
      * @param userNo
      * @return
      */
     RestResponse<BalanceDetailsDTO> getBalance(String userNo);
+
+    /**
+     * 获取当前登录用户余额信息（供前端调用）
+     * @return
+     */
+    RestResponse<BalanceDetailsDTO> getMyBalance();
 }
