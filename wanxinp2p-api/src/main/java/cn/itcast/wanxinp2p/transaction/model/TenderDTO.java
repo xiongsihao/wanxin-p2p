@@ -1,4 +1,4 @@
-﻿package cn.itcast.wanxinp2p.transaction.model;
+package cn.itcast.wanxinp2p.transaction.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -19,7 +19,7 @@ public class TenderDTO {
     /**
      * 主键
      */
-	@JsonSerialize(using= ToStringSerializer.class)
+    @JsonSerialize(using= ToStringSerializer.class)
     private Long id;
 
     /**
@@ -27,10 +27,10 @@ public class TenderDTO {
      */
     private Long consumerId;
 
-	/**
-	 * 投标人用户名
-	 */
-	private String consumerUsername;
+    /**
+     * 投标人用户名
+     */
+    private String consumerUsername;
 
     /**
      * 投标人用户编码

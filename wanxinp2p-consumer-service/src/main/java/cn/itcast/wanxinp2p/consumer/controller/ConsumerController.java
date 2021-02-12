@@ -4,20 +4,26 @@ import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.common.util.EncryptUtil;
 import cn.itcast.wanxinp2p.consumer.ConsumerAPI;
 import cn.itcast.wanxinp2p.consumer.common.SecurityUtil;
-import cn.itcast.wanxinp2p.consumer.model.BorrowerDTO;
-import cn.itcast.wanxinp2p.consumer.model.ConsumerDTO;
-import cn.itcast.wanxinp2p.consumer.model.ConsumerRegisterDTO;
-import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
+import cn.itcast.wanxinp2p.consumer.model.*;
 import cn.itcast.wanxinp2p.consumer.service.ConsumerService;
 import cn.itcast.wanxinp2p.depository.GatewayRequest;
+import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @Api(value = "用户服务的Controller", tags = "Consumer", description = "用户服务API")
+@Slf4j
 public class ConsumerController implements ConsumerAPI {
 
     @Autowired
@@ -109,6 +115,43 @@ public class ConsumerController implements ConsumerAPI {
         return RestResponse.success(consumerService.getBorrower(id));
     }
 
+    /**
+     * 获取当前登录用户余额信息
+     *
+     * @param userNo
+     * @return
+     */
+    @Override
+    @ApiOperation("获取用户可用余额")
+    @ApiImplicitParam(name = "userNo", value = "用户编码", required = true, dataType = "String")
+    @GetMapping("/l/balances/{userNo}")
+    public RestResponse<BalanceDetailsDTO> getBalance(@PathVariable String userNo) {
+        RestResponse<BalanceDetailsDTO> balanceFromDepository = getBalanceFromDepository(userNo);
+        return balanceFromDepository;
+    }
+
+    @Value("${depository.url}")
+    private String depositoryURL;
+    private OkHttpClient okHttpClient = new OkHttpClient().newBuilder().build();
+
+    /**
+     * 远程调用存管系统获取用户余额信息 @param userNo 用户编码 @return
+     */
+    private RestResponse<BalanceDetailsDTO> getBalanceFromDepository(String userNo) {
+        String url = depositoryURL + "/balance-details/" + userNo;
+        BalanceDetailsDTO balanceDetailsDTO;
+        Request request = new Request.Builder().url(url).build();
+        try (Response response = okHttpClient.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                balanceDetailsDTO = JSON.parseObject(responseBody, BalanceDetailsDTO.class);
+                return RestResponse.success(balanceDetailsDTO);
+            }
+        } catch (IOException e) {
+            log.warn("调用存管系统{}获取余额失败 ", url, e);
+        }
+        return RestResponse.validfail("获取失败");
+    }
 
     @ApiOperation("过网关受保护资源，进行认证拦截测试")
     @ApiImplicitParam(name = "jsonToken", value = "访问令牌", required = true, dataType = "String")

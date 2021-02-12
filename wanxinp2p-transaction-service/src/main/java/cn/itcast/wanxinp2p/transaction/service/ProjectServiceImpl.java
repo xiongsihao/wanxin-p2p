@@ -13,9 +13,7 @@ import cn.itcast.wanxinp2p.transaction.entity.Project;
 import cn.itcast.wanxinp2p.transaction.entity.Tender;
 import cn.itcast.wanxinp2p.transaction.mapper.ProjectMapper;
 import cn.itcast.wanxinp2p.transaction.mapper.TenderMapper;
-import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
-import cn.itcast.wanxinp2p.transaction.model.ProjectQueryDTO;
-import cn.itcast.wanxinp2p.transaction.model.TenderOverviewDTO;
+import cn.itcast.wanxinp2p.transaction.model.*;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -254,6 +252,17 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             tenderOverviewDTOList.add(tenderOverviewDTO);
         });
         return tenderOverviewDTOList;
+    }
+
+    /**
+     * 用户投标
+     *
+     * @param projectInvestDTO
+     * @return
+     */
+    @Override
+    public TenderDTO createTender(ProjectInvestDTO projectInvestDTO) {
+        return null;
     }
 
     private Project convertProjectDTOToEntity(ProjectDTO projectDTO) {
