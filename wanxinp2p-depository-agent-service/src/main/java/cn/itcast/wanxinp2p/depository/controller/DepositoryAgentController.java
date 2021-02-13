@@ -80,7 +80,8 @@ public class DepositoryAgentController implements DepositoryAgentApi {
     @ApiImplicitParam(name = "loanRequest", value = "标的满标放款信息", required = true, dataType = "LoanRequest", paramType = "body")
     @PostMapping("l/confirm-loan")
     public RestResponse<String> confirmLoan(@RequestBody LoanRequest loanRequest) {
-        return null;
+        DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.confirmLoan(loanRequest);
+        return getRestResponse(depositoryResponse);
     }
 
     /**
@@ -94,7 +95,8 @@ public class DepositoryAgentController implements DepositoryAgentApi {
     @ApiImplicitParam(name = "modifyProjectStatusDTO", value = "修改标的状态DTO", required = true, dataType = "ModifyProjectStatusDTO", paramType = "body")
     @PostMapping("l/modify-project-status")
     public RestResponse<String> modifyProjectStatus(@RequestBody ModifyProjectStatusDTO modifyProjectStatusDTO) {
-        return null;
+        DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.modifyProjectStatus(modifyProjectStatusDTO);
+        return getRestResponse(depositoryResponse);
     }
 
     /**
