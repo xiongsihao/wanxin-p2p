@@ -76,4 +76,13 @@ public interface TransactionApi {
      * @return
      */
     RestResponse<TenderDTO> createTender(ProjectInvestDTO projectInvestDTO);
+
+    /**
+     * 审核标的满标放款
+     * @param id 标的id
+     * @param approveStatus 审核状态
+     * @param commission 平台佣金
+     * @return
+     */
+    RestResponse<String> loansApprovalStatus(Long id, String approveStatus, String commission);
 }

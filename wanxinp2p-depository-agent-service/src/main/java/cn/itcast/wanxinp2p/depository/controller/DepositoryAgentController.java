@@ -4,9 +4,7 @@ import cn.itcast.wanxinp2p.common.domain.RestResponse;
 import cn.itcast.wanxinp2p.consumer.model.ConsumerRequest;
 import cn.itcast.wanxinp2p.depository.DepositoryAgentApi;
 import cn.itcast.wanxinp2p.depository.GatewayRequest;
-import cn.itcast.wanxinp2p.depository.model.DepositoryBaseResponse;
-import cn.itcast.wanxinp2p.depository.model.DepositoryResponseDTO;
-import cn.itcast.wanxinp2p.depository.model.UserAutoPreTransactionRequest;
+import cn.itcast.wanxinp2p.depository.model.*;
 import cn.itcast.wanxinp2p.depository.service.DepositoryRecordService;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import io.swagger.annotations.Api;
@@ -72,7 +70,36 @@ public class DepositoryAgentController implements DepositoryAgentApi {
     }
 
     /**
+     * 审核标的满标放款
+     *
+     * @param loanRequest
+     * @return
+     */
+    @Override
+    @ApiOperation(value = "审核标的满标放款")
+    @ApiImplicitParam(name = "loanRequest", value = "标的满标放款信息", required = true, dataType = "LoanRequest", paramType = "body")
+    @PostMapping("l/confirm-loan")
+    public RestResponse<String> confirmLoan(@RequestBody LoanRequest loanRequest) {
+        return null;
+    }
+
+    /**
+     * 修改标的状态
+     *
+     * @param modifyProjectStatusDTO
+     * @return
+     */
+    @Override
+    @ApiOperation(value = "修改标的状态")
+    @ApiImplicitParam(name = "modifyProjectStatusDTO", value = "修改标的状态DTO", required = true, dataType = "ModifyProjectStatusDTO", paramType = "body")
+    @PostMapping("l/modify-project-status")
+    public RestResponse<String> modifyProjectStatus(@RequestBody ModifyProjectStatusDTO modifyProjectStatusDTO) {
+        return null;
+    }
+
+    /**
      * 统一处理响应信息
+     *
      * @param depositoryResponse
      * @return
      */

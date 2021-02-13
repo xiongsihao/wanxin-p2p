@@ -150,4 +150,28 @@ public class TransactionController implements TransactionApi {
         TenderDTO tenderDTO = projectService.createTender(projectInvestDTO);
         return RestResponse.success(tenderDTO);
     }
+
+    /**
+     * 审核标的满标放款
+     *
+     * @param id            标的id
+     * @param approveStatus 审核状态
+     * @param commission    平台佣金
+     * @return
+     */
+    @Override
+    @ApiOperation("审核标的满标放款")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "标的id", required = true, dataType = "long", paramType = "path"),
+            @ApiImplicitParam(name = "approveStatus", value = "标的审核状态", required = true, dataType = "string", paramType = "path"),
+            @ApiImplicitParam(name = "commission", value = "平台佣金", required = true, dataType = "string", paramType = "query")
+    })
+    @PutMapping("/m/loans/{id}/projectStatus/{approveStatus}")
+    public RestResponse<String> loansApprovalStatus(
+            @PathVariable("id") Long id,
+            @PathVariable("approveStatus") String approveStatus,
+            String commission) {
+
+        return null;
+    }
 }
