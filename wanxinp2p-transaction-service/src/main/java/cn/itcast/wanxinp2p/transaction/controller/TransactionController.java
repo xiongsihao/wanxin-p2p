@@ -171,7 +171,7 @@ public class TransactionController implements TransactionApi {
             @PathVariable("id") Long id,
             @PathVariable("approveStatus") String approveStatus,
             String commission) {
-
-        return null;
+        String result = projectService.loansApprovalStatus(id, approveStatus, commission);
+        return RestResponse.success(result);
     }
 }
