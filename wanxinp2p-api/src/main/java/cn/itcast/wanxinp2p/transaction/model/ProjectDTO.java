@@ -86,7 +86,10 @@ public class ProjectDTO {
      * 创建时间
      */
     private LocalDateTime createDate;
-
+    /**
+     * 审核通过时间
+     */
+    private LocalDateTime modifyDate;
     /**
      * 可用状态
      */
