@@ -11,10 +11,7 @@ import cn.itcast.wanxinp2p.depository.common.constant.DepositoryErrorCode;
 import cn.itcast.wanxinp2p.depository.common.constant.DepositoryRequestTypeCode;
 import cn.itcast.wanxinp2p.depository.entity.DepositoryRecord;
 import cn.itcast.wanxinp2p.depository.mapper.DepositoryRecordMapper;
-import cn.itcast.wanxinp2p.depository.model.DepositoryBaseResponse;
-import cn.itcast.wanxinp2p.depository.model.DepositoryRecordDTO;
-import cn.itcast.wanxinp2p.depository.model.DepositoryResponseDTO;
-import cn.itcast.wanxinp2p.depository.model.ProjectRequestDataDTO;
+import cn.itcast.wanxinp2p.depository.model.*;
 import cn.itcast.wanxinp2p.transaction.model.ProjectDTO;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -86,7 +83,7 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
     @Override
     public DepositoryResponseDTO<DepositoryBaseResponse> createProject(ProjectDTO projectDTO) {
         //1. 保存交易记录
-        DepositoryRecord depositoryRecord =new DepositoryRecord(projectDTO.getRequestNo(),
+        DepositoryRecord depositoryRecord = new DepositoryRecord(projectDTO.getRequestNo(),
                 DepositoryRequestTypeCode.CREATE.getCode(), "Project", projectDTO.getId());
 
         //幂等性校验，防止短时间内多次请求
@@ -103,15 +100,46 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
                 convertProjectDTOToProjectRequestDataDTO(projectDTO,
                         depositoryRecord.getRequestNo());
         //转换为JSON
-        String jsonString=JSON.toJSONString(projectRequestDataDTO);
+        String jsonString = JSON.toJSONString(projectRequestDataDTO);
         //base64
-        String reqData=EncryptUtil.encodeUTF8StringBase64(jsonString);
+        String reqData = EncryptUtil.encodeUTF8StringBase64(jsonString);
 
         //3. 往银行存管系统发送数据(标的信息),根据结果修改状态并返回结果
         // 定义发送的url地址
-        String url=configService.getDepositoryUrl()+"/service";
+        String url = configService.getDepositoryUrl() + "/service";
         // 使用OKHttpClient发送Http请求，发送数据
-        return sendHttpGet("CREATE_PROJECT",url,reqData,depositoryRecord);
+        return sendHttpGet("CREATE_PROJECT", url, reqData, depositoryRecord);
+    }
+
+    /**
+     * 投标预处理
+     *
+     * @param userAutoPreTransactionRequest
+     * @return
+     */
+    @Override
+    public DepositoryResponseDTO<DepositoryBaseResponse> userAutoPreTransaction(UserAutoPreTransactionRequest userAutoPreTransactionRequest) {
+        DepositoryRecord depositoryRecord = new DepositoryRecord(
+                userAutoPreTransactionRequest.getRequestNo(),
+                userAutoPreTransactionRequest.getBizType(),
+                "UserAutoPreTransactionRequest",
+                userAutoPreTransactionRequest.getId());
+        // 幂等性实现
+        DepositoryResponseDTO<DepositoryBaseResponse> responseDTO = handleIdempotent(depositoryRecord);
+        if (responseDTO != null) {
+            return responseDTO;
+        }
+        // 根据requestNo获取交易记录
+        depositoryRecord = getEntityByRequestNo(userAutoPreTransactionRequest.getRequestNo());
+        // userAutoPreTransactionRequest 转为 json 用于数据签名
+        final String jsonString = JSON.toJSONString(userAutoPreTransactionRequest);
+        // 业务数据报文, 对json数据进行base64编码处理方便传输
+        String reqData = EncryptUtil.encodeUTF8StringBase64(jsonString);
+        // 发送请求, 获取结果
+        // 拼接银行存管系统请求地址
+        String url = configService.getDepositoryUrl() + "/service";
+        // 向银行存管系统发送请求
+        return sendHttpGet("USER_AUTO_PRE_TRANSACTION", url, reqData, depositoryRecord);
     }
 
     /**
@@ -152,18 +180,18 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
 
     private ProjectRequestDataDTO convertProjectDTOToProjectRequestDataDTO(
             ProjectDTO projectDTO, String requestNo) {
-        if(projectDTO==null){
+        if (projectDTO == null) {
             return null;
         }
         ProjectRequestDataDTO requestDataDTO = new ProjectRequestDataDTO();
-        BeanUtils.copyProperties(projectDTO,requestDataDTO);
+        BeanUtils.copyProperties(projectDTO, requestDataDTO);
         requestDataDTO.setRequestNo(requestNo);
         return requestDataDTO;
     }
 
     private DepositoryResponseDTO<DepositoryBaseResponse> sendHttpGet(
             String serviceName, String url, String reqData,
-            DepositoryRecord depositoryRecord){
+            DepositoryRecord depositoryRecord) {
         // 银行存管系统接收的4大参数: serviceName, platformNo, reqData, signature
         // signature会在okHttp拦截器(SignatureInterceptor)中处理
         // 平台编号
@@ -175,7 +203,8 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
                         platformNo + "&reqData=" + reqData);
         DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = JSON
                 .parseObject(responseBody,
-                        new TypeReference<DepositoryResponseDTO<DepositoryBaseResponse>>(){});
+                        new TypeReference<DepositoryResponseDTO<DepositoryBaseResponse>>() {
+                        });
 
         //封装返回的处理结果
         depositoryRecord.setResponseData(responseBody);
@@ -204,16 +233,17 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
 
     /**
      * 实现幂等性
+     *
      * @param depositoryRecord
      * @return
      */
     private DepositoryResponseDTO<DepositoryBaseResponse> handleIdempotent(DepositoryRecord depositoryRecord) {
         // 根据requestNo进行查询
-        String requestNo=depositoryRecord.getRequestNo();
-        DepositoryRecordDTO depositoryRecordDTO=getByRequestNo(requestNo);
+        String requestNo = depositoryRecord.getRequestNo();
+        DepositoryRecordDTO depositoryRecordDTO = getByRequestNo(requestNo);
 
         //1. 交易记录不存在,保存交易记录
-        if(null==depositoryRecordDTO){
+        if (null == depositoryRecordDTO) {
             saveDepositoryRecord(depositoryRecord);
             return null;
         }
@@ -235,7 +265,7 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
 
         //3. 交易记录已经存在，并且状态是“已同步”
         return JSON.parseObject(depositoryRecordDTO.getResponseData(),
-                new TypeReference<DepositoryResponseDTO<DepositoryBaseResponse>>(){
+                new TypeReference<DepositoryResponseDTO<DepositoryBaseResponse>>() {
                 });
     }
 
@@ -252,6 +282,7 @@ public class DepositoryRecordServiceImpl extends ServiceImpl<DepositoryRecordMap
         save(depositoryRecord);
         return depositoryRecord;
     }
+
     private DepositoryRecordDTO getByRequestNo(String requestNo) {
         DepositoryRecord depositoryRecord = getEntityByRequestNo(requestNo);
         if (depositoryRecord == null) {

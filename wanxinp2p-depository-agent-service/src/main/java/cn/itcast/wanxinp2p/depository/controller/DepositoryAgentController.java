@@ -64,9 +64,22 @@ public class DepositoryAgentController implements DepositoryAgentApi {
      */
     @Override
     @ApiOperation(value = "预授权处理")
-    @ApiImplicitParam(name = "userAutoPreTransactionRequest", value = "平台向存管系统发送标的信息", required = true, dataType = "UserAutoPreTransactionRequest", paramType = "body")
+    @ApiImplicitParam(name = "userAutoPreTransactionRequest", value = "向银行存管系统发送投标信息", required = true, dataType = "UserAutoPreTransactionRequest", paramType = "body")
     @PostMapping("/l/user-auto-pre-transaction")
     public RestResponse<String> userAutoPreTransaction(@RequestBody UserAutoPreTransactionRequest userAutoPreTransactionRequest) {
-        return null;
+        DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse = depositoryRecordService.userAutoPreTransaction(userAutoPreTransactionRequest);
+        return getRestResponse(depositoryResponse);
+    }
+
+    /**
+     * 统一处理响应信息
+     * @param depositoryResponse
+     * @return
+     */
+    private RestResponse<String> getRestResponse(DepositoryResponseDTO<DepositoryBaseResponse> depositoryResponse) {
+        final RestResponse<String> restResponse = new RestResponse<>();
+        restResponse.setResult(depositoryResponse.getRespData().getRespCode());
+        restResponse.setMsg(depositoryResponse.getRespData().getRespMsg());
+        return restResponse;
     }
 }
