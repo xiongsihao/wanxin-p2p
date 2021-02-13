@@ -181,11 +181,12 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         //2.生成流水号(不存在才生成)
         if (StringUtils.isBlank(project.getRequestNo())) {
             projectDTO.setRequestNo(CodeNoUtil.getNo(CodePrefixCode.CODE_REQUEST_PREFIX));
-            update(Wrappers.<Project>lambdaUpdate().set(Project::getRequestNo,
+            projectDTO.setModifyDate(LocalDateTime.now());
+            update(Wrappers.<Project>lambdaUpdate().set(Project::getModifyDate,
+                    projectDTO.getModifyDate()).set(Project::getRequestNo,
                     projectDTO.getRequestNo()).eq(Project::getId, id));
         }
 
-        projectDTO.setModifyDate(LocalDateTime.now());
         //3.通过feign远程访问存管代理服务，把标的信息传输过去
         RestResponse<String> restResponse = depositoryAgentApiAgent.createProject(projectDTO);
 
